@@ -1,5 +1,5 @@
 import * as Engine from "../Engine.js"
-export default class ScreenText extends Engine.Component {
+export default class ScreenTextComponent extends Engine.Component {
     constructor(gameObject, string, options) {
         super(gameObject);
         this.delay = options?.delay || 0;
