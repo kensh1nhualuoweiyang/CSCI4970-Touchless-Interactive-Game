@@ -8,7 +8,7 @@ export default class DrawGeometryComponent extends Component {
   }
   draw(ctx) {
     ctx.lineWidth = this.strokeWidth;
-    let rectangleGeometry = this.gameObject.getComponent("RectangleComponent")
+    let rectangleGeometry = this.gameObject.getComponent("RectangleGeometryComponent")
     if (rectangleGeometry) {
       if (this.fillColor) {
         ctx.fillStyle = this.fillColor;
@@ -19,7 +19,7 @@ export default class DrawGeometryComponent extends Component {
         ctx.strokeRect(0 - rectangleGeometry.width / 2, 0 - rectangleGeometry.height / 2, rectangleGeometry.width, rectangleGeometry.height);
       }
     }
-    let circleGeometry = this.gameObject.getComponent("CircleComponent");
+    let circleGeometry = this.gameObject.getComponent("CircleGeometryComponent");
     if (circleGeometry) {
       
       ctx.beginPath();
@@ -33,11 +33,23 @@ export default class DrawGeometryComponent extends Component {
         ctx.stroke();
       }
     }
-    let Square = this.gameObject.getComponent("SquareComponent");
-    if (Square) {
-      if (this.fillColor) {
-        ctx.fillStyle = this.fillColor;
-        ctx.fillRect(this.gameObject.transform.position.x - Square.dimension / 2, this.gameObject.transform.position.y - Square.dimension / 2, Square.dimension, Square.dimension);
+    let polygonGeometryComponent = this.gameObject.getComponent("PolygonGeometryComponent");
+    if (polygonGeometryComponent) {
+      if (polygonGeometryComponent.points && polygonGeometryComponent.points.length) {
+        ctx.beginPath();
+        ctx.moveTo(polygonGeometryComponent.points[0].x, polygonGeometryComponent.points[0].y)
+        for (let point of polygonGeometryComponent.points) {
+          ctx.lineTo(point.x, point.y);
+        }
+        ctx.closePath();
+        if (this.fillColor) {
+          ctx.fillStyle = this.fillColor;
+          ctx.fill();
+        }
+        if(this.strokeColor){
+          ctx.strokeStyle = this.strokeColor;
+          ctx.stroke();
+        }
       }
     }
 

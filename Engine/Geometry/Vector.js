@@ -1,4 +1,4 @@
-import Geometry from "./collisions.js"
+import Geometry from "./Collisions.js"
 
 export default class Vector {
   x;
