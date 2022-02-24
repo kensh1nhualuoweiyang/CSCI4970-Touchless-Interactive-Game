@@ -217,7 +217,7 @@ class Engine {
   
   
   
-          window.requestAnimationFrame(loop, canvas);
+          window.requestAnimationFrame(gameLoop, canvas);
   
   
   
@@ -225,57 +225,60 @@ class Engine {
         else {
           ctx.fillStyle = "magenta"
           ctx.fillRect(0, 0, canvas.width, canvas.height);
-          window.requestAnimationFrame(loop, canvas);
+          window.requestAnimationFrame(gameLoop, canvas);
   
         }
       }
-      Engine.Input.SwapArrays();
-      let currentScene = Engine.SceneManager.currentScene;
-      currentScene.draw(drawingLayers);
-      currentScene.update();
-      currentScene.cullDestroyed();
-
-      ctx.canvas.width = window.innerWidth;
-      ctx.canvas.height = window.innerHeight;
-
-      let cw = ctx.canvas.width;
-      let ch = ctx.canvas.height;
-
-      let dw = dctx.canvas.width;
-      let dh = dctx.canvas.height;
-
-      ctx.fillStyle = "gray";
-      ctx.fillRect(0, 0, cw, ch);
-
-
-
-      //Draw centered and scaled to fit the window
-      let dAspectRatio = dw / dh;
-      let cAspectRatio = cw / ch;
-
-      let w = cw;
-      let h = ch;
-      if (dAspectRatio < cAspectRatio) {
-        w = h * dAspectRatio;
+      else{
+        Engine.Input.SwapArrays();
+        let currentScene = Engine.SceneManager.currentScene;
+        currentScene.draw(drawingLayers);
+        currentScene.update();
+        currentScene.cullDestroyed();
+  
+        ctx.canvas.width = window.innerWidth;
+        ctx.canvas.height = window.innerHeight;
+  
+        let cw = ctx.canvas.width;
+        let ch = ctx.canvas.height;
+  
+        let dw = dctx.canvas.width;
+        let dh = dctx.canvas.height;
+  
+        ctx.fillStyle = "gray";
+        ctx.fillRect(0, 0, cw, ch);
+  
+  
+  
+        //Draw centered and scaled to fit the window
+        let dAspectRatio = dw / dh;
+        let cAspectRatio = cw / ch;
+  
+        let w = cw;
+        let h = ch;
+        if (dAspectRatio < cAspectRatio) {
+          w = h * dAspectRatio;
+        }
+        else {
+          h = w / dAspectRatio
+        }
+        ctx.drawImage(deferredCanvas, (cw - w) / 2, (ch - h) / 2, w, h);
+        Engine.Input.Remap = p => {
+          let x = p.x;
+          let y = p.y;
+  
+          x -= (cw - w) / 2;
+          y -= (ch - h) / 2;
+  
+          x *= dw / w;
+          y *= dh / h;
+          x -= width / 2;
+          y -= height / 2
+  
+          return new Vector(x, y);
+        }
       }
-      else {
-        h = w / dAspectRatio
-      }
-      ctx.drawImage(deferredCanvas, (cw - w) / 2, (ch - h) / 2, w, h);
-      Engine.Input.Remap = p => {
-        let x = p.x;
-        let y = p.y;
-
-        x -= (cw - w) / 2;
-        y -= (ch - h) / 2;
-
-        x *= dw / w;
-        y *= dh / h;
-        x -= width / 2;
-        y -= height / 2
-
-        return new Vector(x, y);
-      }
+     
     }
 
     let fps = 60;
