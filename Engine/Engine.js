@@ -134,68 +134,68 @@ class Engine {
 
     /* Update and draw our game */
     function gameLoop() {
-      if(options.webcam){
+      if (options.webcam) {
         if (video.srcObject || track) {
           track = video.srcObject.getTracks()[0];
           settings = track.getSettings();
-  
+
           //document.body.appendChild(tempCanvas);
-  
+
           canvas.width = window.innerWidth;
           canvas.height = window.innerHeight;
-          
+
           let videoWidth = settings.width;
           let videoHeight = settings.height;
-          
+
           tempCanvas.width = videoWidth;
           tempCanvas.height = videoHeight;
           secondCanvas.width = videoWidth;
           secondCanvas.height = videoHeight;
-  
+
           ctx.fillStyle = "black";
           ctx.fillRect(0, 0, canvas.width, canvas.height);
-  
+
           let scaleX = 1;
           let scaleY = 1;
           let proposedScaleX = window.innerWidth / settings.width;
           let proposedScaleY = window.innerHeight / settings.height;
           let scale = Math.min(proposedScaleX, proposedScaleY);
-          
-  
-  
+
+
+
           let offsetX = 0;
           let offsetY = 0;
-  
-  
-  
+
+
+
           if (scale != proposedScaleX) {
             offsetX = (proposedScaleX - scale) * videoWidth / 2
           }
           else {
             offsetY = (proposedScaleY - scale) * videoHeight / 2
           }
-  
+
           tempCtx.drawImage(video, 0, 0, settings.width, settings.height);
-  
+
           let pixels = tempCtx.getImageData(0, 0, settings.width, settings.height);
-  
-  
+
+
           for (let y = 0; y < videoHeight; y++) {
             for (let x = 0; x < videoWidth; x++) {
               //The data is linear, get the x,y coordinate
               //We mulitply by 4 since it is stored as rgba
               let pixelIndex = videoWidth * 4 * y + x * 4;
-  
+
               //Convert to grayscale on half the image
               if (true) {
                 let r = pixels.data[pixelIndex];
                 let g = pixels.data[pixelIndex + 1];
                 let b = pixels.data[pixelIndex + 2];
-  
+
                 //Trivial grayscale conversion using the red channel
                 g = r;
                 b = r;
-  
+
                 //Update the pixel data
                 pixels.data[pixelIndex] = r;
                 pixels.data[pixelIndex + 1] = g;
@@ -203,57 +203,57 @@ class Engine {
               }
             }
           }
-  
-  
-          secondCtx.putImageData(pixels,0,0);
+
+
+          secondCtx.putImageData(pixels, 0, 0);
           console.log(scale);
-  
+
           console.log(offsetY);
           ctx.drawImage(secondCanvas, 0, 0, videoWidth, videoHeight,
             offsetX, offsetY, scale * videoWidth, scale * videoHeight);
-  
+
           //ctx.putImageData(pixels, offsetX, offsetY);
-  
-  
-  
-  
+
+
+
+
           window.requestAnimationFrame(gameLoop, canvas);
-  
-  
-  
+
+
+
         }
         else {
           ctx.fillStyle = "magenta"
           ctx.fillRect(0, 0, canvas.width, canvas.height);
           window.requestAnimationFrame(gameLoop, canvas);
-  
+
         }
       }
-      else{
+      else {
         Engine.Input.SwapArrays();
         let currentScene = Engine.SceneManager.currentScene;
         currentScene.draw(drawingLayers);
         currentScene.update();
         currentScene.cullDestroyed();
-  
+
         ctx.canvas.width = window.innerWidth;
         ctx.canvas.height = window.innerHeight;
-  
+
         let cw = ctx.canvas.width;
         let ch = ctx.canvas.height;
-  
+
         let dw = dctx.canvas.width;
         let dh = dctx.canvas.height;
-  
+
         ctx.fillStyle = "gray";
         ctx.fillRect(0, 0, cw, ch);
-  
-  
-  
+
+
+
         //Draw centered and scaled to fit the window
         let dAspectRatio = dw / dh;
         let cAspectRatio = cw / ch;
-  
+
         let w = cw;
         let h = ch;
         if (dAspectRatio < cAspectRatio) {
@@ -266,19 +266,19 @@ class Engine {
         Engine.Input.Remap = p => {
           let x = p.x;
           let y = p.y;
-  
+
           x -= (cw - w) / 2;
           y -= (ch - h) / 2;
-  
+
           x *= dw / w;
           y *= dh / h;
           x -= width / 2;
           y -= height / 2
-  
+
           return new Vector(x, y);
         }
       }
-     
+
     }
 
     let fps = 60;
