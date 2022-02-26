@@ -133,8 +133,6 @@ class Engine {
 
     /* Update and draw our game */
     function gameLoop() {
-      let fps = 60;
-      setInterval(gameLoop, 1000 / fps)
       if (options.webcam) {
         if (video.srcObject || track) {
           track = video.srcObject.getTracks()[0];
