@@ -227,6 +227,8 @@ class Engine {
           window.requestAnimationFrame(gameLoop, canvas);
 
         }
+        let fps = 60;
+        setInterval(gameLoop, 1000 / fps)
       }
       else {
         Engine.Input.SwapArrays();
