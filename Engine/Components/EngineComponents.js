@@ -1,5 +1,6 @@
 export {default as CircleGeometryComponent} from "./CircleGeometryComponent.js"
 export {default as DrawGeometryComponent} from "./DrawGeometryComponent.js"
+export {default as PolygonGeometryComponent} from "./PolygonGeometryComponent.js"
 export {default as RectangleGeometryComponent} from "./RectangleGeometryComponent.js"
 export {default as RigidBodyComponent} from "./RigidBodyComponent.js"
 export {default as ScreenCameraComponent} from "./ScreenCameraComponent.js"

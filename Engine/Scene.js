@@ -24,14 +24,17 @@ export default class Scene {
         gameObject.drawLayer = objectDefinition.drawLayer || "default";
 
         if (objectDefinition.enabled == true || objectDefinition.enabled == false) {
-         
+            //Funny, round about way to check defined v truthy
+            //Notice we are setting the "private" version of the variable, so we don't trigger onEnable quite yet
             gameObject._enabled = objectDefinition.enabled;
         }
         else
             //Notice we are setting the "private" version of the variable, so we don't trigger onEnable quite yet
             gameObject._enabled = true; //Default 
 
-      
+        //Call awake if the object is enabled. Note that other game objects in the scene may not have had their awake() called.
+        //start() is called after all game objects in a scene are initialized and called awake().
+        //For details, see https://docs.unity3d.com/Manual/ExecutionOrder.html
         if (gameObject.enabled && !sceneStart) {
 
             gameObject.callMethod("awake");
@@ -152,6 +155,10 @@ export default class Scene {
                 bctx.drawImage(thisCanvas, cx + mw, cy - mh) //y up + x Right
 
 
+                //https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/filter
+                //This technology is not supported by safari as of 4/6/21
+                //Check https://caniuse.com/?search=canvas%20filter for updates
+                //bbctx.filter = 'blur(10px)'
                 bbctx.drawImage(bufferCanvas, 0, 0);
                 //bbctx.filter = 'none'
                 bbctx.drawImage(bufferCanvas, 0, 0);
