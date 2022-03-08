@@ -1,7 +1,6 @@
 export { default as Scene } from "./Scene.js"
 export { default as GameObject } from "./GameObject.js"
 export { default as Component } from "./Component.js"
-export { default as Input } from "./Input.js"
 export { default as SceneManager } from "./SceneManager.js"
 export { default as Vector } from "./Geometry/Vector.js"
 export * as EngineComponents from "./Components/EngineComponents.js"
@@ -9,7 +8,6 @@ export * as EngineGeometry from "./Geometry/EngineGeometry.js"
 import Scene from "./Scene.js"
 import GameObject from "./GameObject.js"
 import Component from "./Component.js"
-import Input from "./Input.js"
 import SceneManager from "./SceneManager.js"
 import Vector from "./Geometry/Vector.js"
 import * as EngineComponents from "./Components/EngineComponents.js"
@@ -25,8 +23,6 @@ class Engine {
     Engine.SceneManager.allScenes = Object.keys(options.GameScenes).map(i => options.GameScenes[i]);
     Engine.SceneManager.changeScene(options.mainSceneTitle);
 
-
-    Engine.Input.attach(document);
 
     //This will be our default size unless it is set in the options
     let width = 640;
@@ -205,9 +201,6 @@ class Engine {
 
 
           secondCtx.putImageData(pixels, 0, 0);
-          console.log(scale);
-
-          console.log(offsetY);
           ctx.drawImage(secondCanvas, 0, 0, videoWidth, videoHeight,
             offsetX, offsetY, scale * videoWidth, scale * videoHeight);
 
@@ -229,7 +222,6 @@ class Engine {
         }
       }
       else {
-        Engine.Input.SwapArrays();
         let currentScene = Engine.SceneManager.currentScene;
         currentScene.draw(drawingLayers);
         currentScene.update();
@@ -262,20 +254,6 @@ class Engine {
           h = w / dAspectRatio
         }
         ctx.drawImage(deferredCanvas, (cw - w) / 2, (ch - h) / 2, w, h);
-        Engine.Input.Remap = p => {
-          let x = p.x;
-          let y = p.y;
-
-          x -= (cw - w) / 2;
-          y -= (ch - h) / 2;
-
-          x *= dw / w;
-          y *= dh / h;
-          x -= width / 2;
-          y -= height / 2
-
-          return new Vector(x, y);
-        }
       }
 
     }
@@ -296,7 +274,6 @@ Engine.SceneManager.Geometry = Engine.EngineGeometry;
 Engine.Scene = Scene;
 Engine.GameObject = GameObject;
 Engine.Component = Component;
-Engine.Input = Input;
 Engine.SceneManager = SceneManager;
 Engine.Vector = Vector;
 Engine.EngineComponents = EngineComponents;
@@ -305,7 +282,6 @@ globalThis.Instantiate = i => Engine.SceneManager.currentScene.instantiate(i);
 globalThis.Destroy = g => g.destroy();
 globalThis.GameObject = Engine.GameObject;
 globalThis.Engine = Engine;
-globalThis.Input = Engine.Input;
 globalThis.Geometry = EngineGeometry;
 globalThis.GetGameObject = (name) => Engine.SceneManager.currentScene.getGameObject(name);
 

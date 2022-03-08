@@ -8,9 +8,7 @@ export default class Matrix {
   }
 
   constructor() {
-    //console.log("Matrix constructor called with " + arguments.length + " arguments")
     if (arguments.length == 0) {
-      //We're okay
       this.values = [1, 0, 0, 0, 1, 0, 0, 0, 1];
     }
     else if (arguments.length == 9) {
@@ -145,7 +143,6 @@ export default class Matrix {
     return new Vector(this.m13, this.m23);
   }
   extractRotation() {
-    //return Math.asin(this.m21);
     return Math.atan(this.m21/this.m22);
 
   }
