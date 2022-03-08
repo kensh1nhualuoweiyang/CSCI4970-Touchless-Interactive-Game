@@ -155,10 +155,7 @@ export default class Scene {
                 bctx.drawImage(thisCanvas, cx + mw, cy - mh) //y up + x Right
 
 
-                //https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/filter
-                //This technology is not supported by safari as of 4/6/21
-                //Check https://caniuse.com/?search=canvas%20filter for updates
-                //bbctx.filter = 'blur(10px)'
+            
                 bbctx.drawImage(bufferCanvas, 0, 0);
                 //bbctx.filter = 'none'
                 bbctx.drawImage(bufferCanvas, 0, 0);
@@ -169,30 +166,6 @@ export default class Scene {
                 layers[0].ctx.drawImage(layers[i].ctx.canvas, 0, 0)
             }
         }
-
-        //Debug the layers
-        let debugLayerWidth = 70;
-        for (let i = 0; i < layers.length; i++) {
-            let thisCtx = layers[i].ctx;
-            let thisCanvas = thisCtx.canvas
-            let renderedHeight = debugLayerWidth * thisCanvas.height / thisCanvas.width;
-            layers[0].ctx.fillStyle = "rgba(128, 128, 128, .5)"
-            layers[0].ctx.fillRect(0, (i) * debugLayerWidth, debugLayerWidth, debugLayerWidth * thisCanvas.height / thisCanvas.width)
-            layers[0].ctx.drawImage(thisCanvas, 0, (i) * debugLayerWidth, debugLayerWidth, debugLayerWidth * thisCanvas.height / thisCanvas.width)
-
-            layers[0].ctx.strokeStyle = "blue";
-            if (layers[i].name == "wrap") {
-                layers[0].ctx.strokeRect(debugLayerWidth/4, (i) * debugLayerWidth + renderedHeight * .25, debugLayerWidth/2, .5 * renderedHeight)
-            }
-
-            layers[0].ctx.strokeRect(0, (i) * debugLayerWidth, debugLayerWidth, debugLayerWidth * thisCanvas.height / thisCanvas.width)
-
-            layers[0].ctx.fillStyle = "white"
-            let measure = layers[0].ctx.measureText(layers[i].name).width
-            layers[0].ctx.fillText(layers[i].name,  + debugLayerWidth/2 - measure/2, (i+.4)*debugLayerWidth)
-
-        }
-
     }
     //Getter does 2 things. 1) I call camera not getCamera().
     //2) Since there is no setter, this variable is read-only
