@@ -108,28 +108,11 @@ function switchDisplay(pixels, videoHeight, videoWidth) {
     else {
       currentDisplay = "Gray Scale"
       timeDisplayed = 0
+      window.requestAnimationFrame(loop, canvas);
     }
   }
 }
 
-function displayBlackScreen(pixels, videoHeight, videoWidth) {
-  for (let y = 0; y < videoHeight; y++) {
-    for (let x = 0; x < videoWidth; x++) {
-      let pixelIndex = videoWidth * 4 * y + x * 4;
-      pixels.data[pixelIndex] = 0
-      pixels.data[pixelIndex + 1] = 0
-      pixels.data[pixelIndex + 2] = 0
-    }
-  }
-  secondCtx.putImageData(pixels, 0, 0);
-  timeDisplayed++;
-  console.log(timeDisplayed)
-
-  ctx.drawImage(secondCanvas, 0, 0, videoWidth, videoHeight,
-    offsetX, offsetY, scale * videoWidth, scale * videoHeight);
-
-  window.requestAnimationFrame(loop, canvas);
-}
 function copyImageData(srcPixels, dstPixels, width, height) {
   var x, y, position;
   for (y = 0; y < height; ++y) {
@@ -179,7 +162,7 @@ function displaySpiral(pixels, videoHeight, videoWidth) {
 
         // Shift the angle by a constant delta
         // Note the '-' sign was changed by '+' the inverted function
-        degrees += 1.75* r;
+        degrees += 1.5* r;
 
         // Transform back from polar coordinates to cartesian 
         alpha = (degrees * Math.PI) / 180.0;
@@ -198,7 +181,6 @@ function displaySpiral(pixels, videoHeight, videoWidth) {
     }
   }
   secondCtx.putImageData(transformedImageData, 0, 0)
-
 
 
   timeDisplayed++;
