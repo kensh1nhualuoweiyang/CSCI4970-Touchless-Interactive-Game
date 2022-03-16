@@ -26,6 +26,13 @@ let secondCtx = secondCanvas.getContext("2d");
 let currentDisplay = "Gray Scale"
 let timeDisplayed = 0
 
+let proposedScaleX = null
+let proposedScaleY = null
+
+let offsetX = null
+let offsetY = null
+
+let scale = null
 function loop() {
   if (video.srcObject || track) {
     track = video.srcObject.getTracks()[0];
@@ -37,24 +44,25 @@ function loop() {
     let videoWidth = settings.width;
     let videoHeight = settings.height;
 
-    tempCanvas.width = videoWidth;
-    tempCanvas.height = videoHeight;
     secondCanvas.width = videoWidth;
     secondCanvas.height = videoHeight;
+
+    tempCanvas.width = videoWidth;
+    tempCanvas.height = videoHeight;
 
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     let scaleX = 1;
     let scaleY = 1;
-    let proposedScaleX = window.innerWidth / settings.width;
-    let proposedScaleY = window.innerHeight / settings.height;
-    let scale = Math.min(proposedScaleX, proposedScaleY);
+    proposedScaleX = window.innerWidth / settings.width;
+    proposedScaleY = window.innerHeight / settings.height;
+    scale = Math.min(proposedScaleX, proposedScaleY);
 
 
 
-    let offsetX = 0;
-    let offsetY = 0;
+    offsetX = 0;
+    offsetY = 0;
 
 
 
@@ -70,14 +78,7 @@ function loop() {
     let pixels = tempCtx.getImageData(0, 0, settings.width, settings.height);
     switchDisplay(pixels, videoHeight, videoWidth)
 
-    secondCtx.putImageData(pixels, 0, 0);
-    timeDisplayed++;
-    console.log(timeDisplayed)
 
-    ctx.drawImage(secondCanvas, 0, 0, videoWidth, videoHeight,
-      offsetX, offsetY, scale * videoWidth, scale * videoHeight);
-
-    window.requestAnimationFrame(loop, canvas);
   }
   else {
     ctx.fillStyle = "magenta"
@@ -89,19 +90,20 @@ function loop() {
 
 
 function switchDisplay(pixels, videoHeight, videoWidth) {
-  
+
   if (currentDisplay == "Gray Scale") {
     if (timeDisplayed < 1000) {
       displayGreyScreen(pixels, videoHeight, videoWidth)
     }
     else {
-      currentDisplay = "Black Screen"
+      currentDisplay = "Spiral"
       timeDisplayed = 0
     }
   }
-  if (currentDisplay == "Black Screen") {
+
+  if (currentDisplay == "Spiral") {
     if (timeDisplayed < 1000) {
-      displayBlackScreen(pixels, videoHeight, videoWidth)
+      displaySpiral(pixels, videoHeight, videoWidth)
     }
     else {
       currentDisplay = "Gray Scale"
@@ -111,14 +113,60 @@ function switchDisplay(pixels, videoHeight, videoWidth) {
 }
 
 function displayBlackScreen(pixels, videoHeight, videoWidth) {
-  for(let y = 0; y < videoHeight;y++){
-    for(let x =0; x< videoWidth;x++){
+  for (let y = 0; y < videoHeight; y++) {
+    for (let x = 0; x < videoWidth; x++) {
       let pixelIndex = videoWidth * 4 * y + x * 4;
       pixels.data[pixelIndex] = 0
-      pixels.data[pixelIndex+1] = 0
-      pixels.data[pixelIndex+2] = 0
+      pixels.data[pixelIndex + 1] = 0
+      pixels.data[pixelIndex + 2] = 0
     }
   }
+  secondCtx.putImageData(pixels, 0, 0);
+  timeDisplayed++;
+  console.log(timeDisplayed)
+
+  ctx.drawImage(secondCanvas, 0, 0, videoWidth, videoHeight,
+    offsetX, offsetY, scale * videoWidth, scale * videoHeight);
+
+  window.requestAnimationFrame(loop, canvas);
+}
+
+
+function displaySpiral(pixels, videoHeight, videoWidth) {
+
+  //Locate the center of the image
+  var centerX = videoWidth / 2
+  var centerY = videoHeight / 2
+  var currentX = centerX
+  var currentY = centerY
+  
+  var step = 60
+  var increment = 2*Math.PI / step
+  var theta = increment
+
+  //Grab the pixel at the target location after transformation
+  //and put the pixel to the current x and y of the original image
+  while(theta < 100 * Math.PI){
+    //X and Y of the new pixel
+    var newX = centerX + theta * Math.cos(theta)
+    var newY = centerY + theta * Math.sin(theta)
+
+    //pixel at the destionation
+    var newPixel = tempCtx.getImageData(newX,newY,2,2)
+    //put such pixel at current location
+    secondCtx.putImageData(newPixel,currentX,currentY)
+    //transform the current x and y
+    currentX = newX
+    currentY = newY
+    theta = theta + increment
+  }
+  timeDisplayed++;
+  console.log(timeDisplayed)
+
+  ctx.drawImage(secondCanvas, 0, 0, videoWidth, videoHeight,
+    offsetX, offsetY, scale * videoWidth, scale * videoHeight);
+
+  window.requestAnimationFrame(loop, canvas);
 }
 
 
@@ -146,4 +194,12 @@ function displayGreyScreen(pixels, videoHeight, videoWidth) {
 
     }
   }
+  secondCtx.putImageData(pixels, 0, 0);
+  timeDisplayed++;
+  console.log(timeDisplayed)
+
+  ctx.drawImage(secondCanvas, 0, 0, videoWidth, videoHeight,
+    offsetX, offsetY, scale * videoWidth, scale * videoHeight);
+
+  window.requestAnimationFrame(loop, canvas);
 }
