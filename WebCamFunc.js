@@ -149,7 +149,7 @@ function displaySpiral(pixels, videoHeight, videoWidth) {
   var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
   var originalPixels = pixels.data;
   var transformedPixels = transformedImageData.data;
-  var r, alpha, angle;
+  var r, alpha;
   var newX, newY;
   var degrees;
   width = pixels.width;
@@ -179,7 +179,7 @@ function displaySpiral(pixels, videoHeight, videoWidth) {
 
         // Shift the angle by a constant delta
         // Note the '-' sign was changed by '+' the inverted function
-        degrees += 1 * r;
+        degrees += 1.75* r;
 
         // Transform back from polar coordinates to cartesian 
         alpha = (degrees * Math.PI) / 180.0;
