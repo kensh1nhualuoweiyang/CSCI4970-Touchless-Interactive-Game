@@ -93,7 +93,7 @@ function switchDisplay(pixels, videoHeight, videoWidth) {
 
   if (currentDisplay == "Gray Scale") {
     if (timeDisplayed < 1000) {
-      displayGreyScreen(pixels, videoHeight, videoWidth)
+      displaySpiral(pixels, videoHeight, videoWidth)
     }
     else {
       currentDisplay = "Spiral"
@@ -130,36 +130,77 @@ function displayBlackScreen(pixels, videoHeight, videoWidth) {
 
   window.requestAnimationFrame(loop, canvas);
 }
-
+function copyImageData(srcPixels, dstPixels, width, height) {
+  var x, y, position;
+  for (y = 0; y < height; ++y) {
+    for (x = 0; x < width; ++x) {
+      position = y * width + x;
+      position *= 4;
+      dstPixels[position + 0] = srcPixels[position + 0];
+      dstPixels[position + 1] = srcPixels[position + 1];
+      dstPixels[position + 2] = srcPixels[position + 2];
+      dstPixels[position + 3] = srcPixels[position + 3];
+    }
+  }
+}
 
 function displaySpiral(pixels, videoHeight, videoWidth) {
+  var x, y, width, height, size, radius, centerX, centerY, sourcePosition, destPosition;
+  var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
+  var originalPixels = pixels.data;
+  var transformedPixels = transformedImageData.data;
+  var r, alpha, angle;
+  var newX, newY;
+  var degrees;
+  width = pixels.width;
+  height = pixels.height;
 
-  //Locate the center of the image
-  var centerX = videoWidth / 2
-  var centerY = videoHeight / 2
-  var currentX = centerX
-  var currentY = centerY
-  
-  var step = 60
-  var increment = 2*Math.PI / step
-  var theta = increment
+  centerX = Math.floor(width / 2);
+  centerY = Math.floor(height / 2);
+  size = width < height ? width : height;
+  radius = Math.floor(size / 2);
 
-  //Grab the pixel at the target location after transformation
-  //and put the pixel to the current x and y of the original image
-  while(theta < 100 * Math.PI){
-    //X and Y of the new pixel
-    var newX = centerX + theta * Math.cos(theta)
-    var newY = centerY + theta * Math.sin(theta)
+  copyImageData(originalPixels, transformedPixels, width, height);
+  secondCtx.putImageData(transformedImageData, 0, 0)
+  for (y = -radius; y < radius; ++y) {
+    for (x = -radius; x < radius; ++x) {
+      // Check if the pixel is inside the effect circle
+      if (x * x + y * y <= radius * radius) {
+        // Calculate the pixel array position
+        destPosition = (y + centerY) * width + x + centerX;
+        destPosition *= 4;
 
-    //pixel at the destionation
-    var newPixel = tempCtx.getImageData(newX,newY,2,2)
-    //put such pixel at current location
-    secondCtx.putImageData(newPixel,currentX,currentY)
-    //transform the current x and y
-    currentX = newX
-    currentY = newY
-    theta = theta + increment
+        // Transform the pixel cartesian coordinates (x, y) to polar coordinates (r, alpha)
+        r = Math.sqrt(x * x + y * y);
+        alpha = Math.atan2(y, x);
+
+        // Remember that the angle alpha is in radians, transform it to degrees 
+        degrees = (alpha * 180.0) / Math.PI;
+
+        // Shift the angle by a constant delta
+        // Note the '-' sign was changed by '+' the inverted function
+        degrees += 1 * r;
+
+        // Transform back from polar coordinates to cartesian 
+        alpha = (degrees * Math.PI) / 180.0;
+        newY = Math.floor(r * Math.sin(alpha));
+        newX = Math.floor(r * Math.cos(alpha));
+
+        // Get the new pixel location 
+        sourcePosition = (newY + centerY) * width + newX + centerX;
+        sourcePosition *= 4;
+
+        transformedPixels[destPosition + 0] = originalPixels[sourcePosition + 0];
+        transformedPixels[destPosition + 1] = originalPixels[sourcePosition + 1];
+        transformedPixels[destPosition + 2] = originalPixels[sourcePosition + 2];
+        transformedPixels[destPosition + 3] = originalPixels[sourcePosition + 3];
+      }
+    }
   }
+  secondCtx.putImageData(transformedImageData, 0, 0)
+
+
+
   timeDisplayed++;
   console.log(timeDisplayed)
 
@@ -168,6 +209,8 @@ function displaySpiral(pixels, videoHeight, videoWidth) {
 
   window.requestAnimationFrame(loop, canvas);
 }
+
+
 
 
 function displayGreyScreen(pixels, videoHeight, videoWidth) {
