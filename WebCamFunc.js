@@ -93,7 +93,7 @@ function switchDisplay(pixels, videoHeight, videoWidth) {
 
   if (currentDisplay == "Gray Scale") {
     if (timeDisplayed < 1000) {
-      displaySpiral(pixels, videoHeight, videoWidth)
+      displayGreyScreen(pixels, videoHeight, videoWidth)
     }
     else {
       currentDisplay = "Spiral"
