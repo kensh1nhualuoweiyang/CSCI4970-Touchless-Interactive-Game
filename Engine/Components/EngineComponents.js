@@ -1,6 +1,0 @@
-export {default as Draw} from "./Draw.js"
-export {default as ScreenCameraComponent} from "./ScreenCameraComponent.js"
-export {default as ScreenTextComponent} from "./ScreenTextComponent.js"
-export {default as TransfromComponent} from "./TransfromComponent.js"
-export {default as Vector} from "./Vector.js"
-export {default as WordCamera} from "./WordCamera.js"
