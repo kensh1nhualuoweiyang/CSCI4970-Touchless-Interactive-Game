@@ -106,6 +106,17 @@ function switchDisplay(pixels, videoHeight, videoWidth) {
       displaySpiral(pixels, videoHeight, videoWidth)
     }
     else {
+      currentDisplay = "Pixelate"
+      timeDisplayed = 0
+      window.requestAnimationFrame(loop, canvas);
+    }
+  }
+
+  if (currentDisplay == "Pixelate") {
+    if (timeDisplayed < 1000) {
+      displayPixelate(pixels, videoHeight, videoWidth, 10)
+    }
+    else {
       currentDisplay = "Gray Scale"
       timeDisplayed = 0
       window.requestAnimationFrame(loop, canvas);
@@ -192,7 +203,67 @@ function displaySpiral(pixels, videoHeight, videoWidth) {
   window.requestAnimationFrame(loop, canvas);
 }
 
+function displayPixelate(pixels, videoHeight, videoWidth, scaleFactor)
+{
+  var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
+  
+  //Loop over all pixels in the image
+  for(let y = 0; y < videoHeight; y += scaleFactor)
+  {
+    for(let x = 0; x < videoWidth; x += scaleFactor)
+    {
+      let totalR = 0;
+      let totalG = 0;
+      let totalB = 0;
+      let totalA = 0;
 
+      //Find the maximum x and y values in the case that the image does not divide into an even amount of 'new pixels'
+      let maxY = Math.min((y + scaleFactor), videoHeight);
+      let maxX = Math.min((x + scaleFactor), videoWidth);
+
+      //Loop over all pixels in the next 'pixel zone' and get the average RGBA value
+      for(let pixelY = y; pixelY < maxY; pixelY++)
+      {
+        for(let pixelX = x; pixelX < maxX; pixelX++)
+        {
+          let pixelIndex = videoWidth * 4 * pixelY + pixelX * 4;
+
+          totalR += pixels.data[pixelIndex];
+          totalG += pixels.data[pixelIndex + 1];
+          totalB += pixels.data[pixelIndex + 2];
+          totalA += pixels.data[pixelIndex + 3];
+        }
+      }
+      let averageR = Math.round(totalR / ((maxY - y) * (maxX - x)));
+      let averageG = Math.round(totalG / ((maxY - y) * (maxX - x)));
+      let averageB = Math.round(totalB / ((maxY - y) * (maxX - x)));
+      let averageA = Math.round(totalA / ((maxY - y) * (maxX - x)));
+
+      //Set all the target pixels to the average RGBA values
+      for(let pixelY = y; pixelY < maxY; pixelY++)
+      {
+        for(let pixelX = x; pixelX < maxX; pixelX++)
+        {
+          let pixelIndex = videoWidth * 4 * pixelY + pixelX * 4;
+
+          transformedImageData.data[pixelIndex] = averageR;
+          transformedImageData.data[pixelIndex + 1] = averageG;
+          transformedImageData.data[pixelIndex + 2] = averageB;
+          transformedImageData.data[pixelIndex + 3] = averageA;
+        }
+      }
+    }
+  }
+
+  secondCtx.putImageData(transformedImageData, 0, 0);
+  timeDisplayed++;
+  console.log(timeDisplayed)
+
+  ctx.drawImage(secondCanvas, 0, 0, videoWidth, videoHeight,
+    offsetX, offsetY, scale * videoWidth, scale * videoHeight);
+
+  window.requestAnimationFrame(loop, canvas);
+}
 
 
 function displayGreyScreen(pixels, videoHeight, videoWidth) {
