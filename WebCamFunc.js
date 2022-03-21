@@ -92,7 +92,7 @@ function loop() {
 function switchDisplay(pixels, videoHeight, videoWidth) {
 
   if (currentDisplay == "Gray Scale") {
-    if (timeDisplayed < 1000) {
+    if (timeDisplayed < 500) {
       displayGreyScreen(pixels, videoHeight, videoWidth)
     }
     else {
@@ -102,7 +102,7 @@ function switchDisplay(pixels, videoHeight, videoWidth) {
   }
 
   if (currentDisplay == "Spiral") {
-    if (timeDisplayed < 1000) {
+    if (timeDisplayed < 500) {
       displaySpiral(pixels, videoHeight, videoWidth)
     }
     else {
@@ -113,8 +113,19 @@ function switchDisplay(pixels, videoHeight, videoWidth) {
   }
 
   if (currentDisplay == "Pixelate") {
-    if (timeDisplayed < 1000) {
+    if (timeDisplayed < 500) {
       displayPixelate(pixels, videoHeight, videoWidth, 10)
+    }
+    else {
+      currentDisplay = "UpsideDown"
+      timeDisplayed = 0
+      window.requestAnimationFrame(loop, canvas);
+    }
+  }
+
+  if (currentDisplay == "UpsideDown") {
+    if (timeDisplayed < 500) {
+      displayUpsideDown(pixels, videoHeight, videoWidth, 10)
     }
     else {
       currentDisplay = "Gray Scale"
@@ -194,6 +205,34 @@ function displaySpiral(pixels, videoHeight, videoWidth) {
   secondCtx.putImageData(transformedImageData, 0, 0)
 
 
+  timeDisplayed++;
+  console.log(timeDisplayed)
+
+  ctx.drawImage(secondCanvas, 0, 0, videoWidth, videoHeight,
+    offsetX, offsetY, scale * videoWidth, scale * videoHeight);
+
+  window.requestAnimationFrame(loop, canvas);
+}
+
+function displayUpsideDown(pixels, videoHeight, videoWidth)
+{
+  var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
+
+  for(let y = 0; y < videoHeight; y++)
+  {
+    for(let x = 0; x < videoWidth; x++)
+    {
+      let pixelIndex = videoWidth * 4 * y + x * 4;
+      let targetPixelIndex = videoWidth * 4 * (videoHeight - 1 - y) + x * 4;
+
+      transformedImageData.data[targetPixelIndex] = pixels.data[pixelIndex];
+      transformedImageData.data[targetPixelIndex + 1] = pixels.data[pixelIndex + 1];
+      transformedImageData.data[targetPixelIndex + 2] = pixels.data[pixelIndex + 2];
+      transformedImageData.data[targetPixelIndex + 3] = pixels.data[pixelIndex + 3];
+    }
+  }
+
+  secondCtx.putImageData(transformedImageData, 0, 0);
   timeDisplayed++;
   console.log(timeDisplayed)
 
