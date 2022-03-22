@@ -92,7 +92,7 @@ function loop() {
 function switchDisplay(pixels, videoHeight, videoWidth) {
 
   if (currentDisplay == "Gray Scale") {
-    if (timeDisplayed < 500) {
+    if (timeDisplayed < 1000) {
       displayGreyScreen(pixels, videoHeight, videoWidth)
     }
     else {
@@ -102,7 +102,7 @@ function switchDisplay(pixels, videoHeight, videoWidth) {
   }
 
   if (currentDisplay == "Spiral") {
-    if (timeDisplayed < 500) {
+    if (timeDisplayed < 1000) {
       displaySpiral(pixels, videoHeight, videoWidth)
     }
     else {
@@ -113,7 +113,7 @@ function switchDisplay(pixels, videoHeight, videoWidth) {
   }
 
   if (currentDisplay == "Pixelate") {
-    if (timeDisplayed < 500) {
+    if (timeDisplayed < 1000) {
       displayPixelate(pixels, videoHeight, videoWidth, 10)
     }
     else {
@@ -124,7 +124,7 @@ function switchDisplay(pixels, videoHeight, videoWidth) {
   }
 
   if (currentDisplay == "UpsideDown") {
-    if (timeDisplayed < 500) {
+    if (timeDisplayed < 1000) {
       displayUpsideDown(pixels, videoHeight, videoWidth, 10)
     }
     else {
