@@ -23,7 +23,7 @@ let tempCtx = tempCanvas.getContext("2d");
 let secondCanvas = document.createElement("canvas");
 let secondCtx = secondCanvas.getContext("2d");
 
-let currentDisplay = "Wave"
+let currentDisplay = "Gray Scale"
 let timeDisplayed = 0
 
 let proposedScaleX = null
@@ -36,6 +36,8 @@ let scale = null
 
 let videoHeight 
 let videoWidth 
+
+let previousPixel
 
 function loop() {
   if (video.srcObject || track) {
@@ -81,7 +83,7 @@ function loop() {
 
     let pixels = tempCtx.getImageData(0, 0, settings.width, settings.height);
     switchDisplay(pixels)
-
+    previousPixel = tempCtx.getImageData(0, 0, settings.width, settings.height);
 
   }
   else {
@@ -92,15 +94,14 @@ function loop() {
   }
 }
 
-
 function switchDisplay(pixels) {
 
   if (currentDisplay == "Gray Scale") {
-    if (timeDisplayed < 1000) {
+    if (timeDisplayed < 100) {
       displayGreyScreen(pixels)
     }
     else {
-      currentDisplay = "Spiral"
+      currentDisplay = "BackgroundRemoval"
       timeDisplayed = 0
     }
   }
@@ -138,17 +139,26 @@ function switchDisplay(pixels) {
     }
   }
   if (currentDisplay == "Wave") {
-   // if (timeDisplayed < 1000) {
+    if (timeDisplayed < 1000) {
       displayWave(pixels)
-    //}
-    /*else {
+    }
+    else {
+      currentDisplay = "BackgroundRemoval"
+      timeDisplayed = 0
+      window.requestAnimationFrame(loop, canvas);
+    }
+  }
+  if(currentDisplay == "BackgroundRemoval"){
+    //if (timeDisplayed < 1000) {
+      backgroundRemoval(pixels)
+    /*}
+    else {
       currentDisplay = "Gray Scale"
       timeDisplayed = 0
       window.requestAnimationFrame(loop, canvas);
     }*/
   }
 }
-
 
 function copyImageData(srcPixels, dstPixels, width, height) {
   var x, y, position;
@@ -280,7 +290,6 @@ function displayWave(pixels){
 
 }
 
-
 function displayUpsideDown(pixels) {
   var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
 
@@ -395,3 +404,47 @@ function displayGreyScreen(pixels) {
   window.requestAnimationFrame(loop, canvas);
 }
 
+function backgroundRemoval(pixels){
+  let minX = videoWidth
+  let maxX = 0
+  for(let y = 0; y<videoHeight;y++){
+    for(let x = 0 ; x<videoWidth; x++){
+      let pixelIndex = videoWidth * 4 * y + x * 4;
+
+      let previousR = previousPixel.data[pixelIndex]
+      let previousG = previousPixel.data[pixelIndex+1]
+      let previousB = previousPixel.data[pixelIndex+2]
+      let previousA = previousPixel.data[pixelIndex+3]
+      let currentR = pixels.data[pixelIndex]
+      let currentG = pixels.data[pixelIndex+1]
+      let currentB = pixels.data[pixelIndex+2]
+      let currentA = pixels.data[pixelIndex+3]
+
+      let difference = Math.abs(previousR - currentR) + Math.abs(previousA-currentA) + Math.abs(previousB-currentB) + Math.abs(previousG-currentG)
+      
+      if(difference >= 65){
+        if(minX > x)
+          minX = x
+        if(maxX < x)
+          maxX = x
+      }
+    }
+    for(let x = 0 ; x<videoWidth; x++){
+      let pixelIndex = videoWidth * 4 * y + x * 4;
+      if(x < minX || x > maxX){
+        pixels.data[pixelIndex] = 0
+        pixels.data[pixelIndex+1] = 0
+        pixels.data[pixelIndex+2] = 0
+        pixels.data[pixelIndex+3] = 0
+      }
+    }
+  }
+  secondCtx.putImageData(pixels, 0, 0);
+  timeDisplayed++;
+  console.log(timeDisplayed)
+
+  ctx.drawImage(secondCanvas, 0, 0, videoWidth, videoHeight,
+    offsetX, offsetY, scale * videoWidth, scale * videoHeight);
+
+  window.requestAnimationFrame(loop, canvas);
+}
