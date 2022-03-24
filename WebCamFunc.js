@@ -23,7 +23,7 @@ let tempCtx = tempCanvas.getContext("2d");
 let secondCanvas = document.createElement("canvas");
 let secondCtx = secondCanvas.getContext("2d");
 
-let currentDisplay = "Gray Scale"
+let currentDisplay = "Wave"
 let timeDisplayed = 0
 
 let proposedScaleX = null
@@ -138,14 +138,14 @@ function switchDisplay(pixels) {
     }
   }
   if (currentDisplay == "Wave") {
-    if (timeDisplayed < 1000) {
+   // if (timeDisplayed < 1000) {
       displayWave(pixels)
-    }
-    else {
+    //}
+    /*else {
       currentDisplay = "Gray Scale"
       timeDisplayed = 0
       window.requestAnimationFrame(loop, canvas);
-    }
+    }*/
   }
 }
 
@@ -156,7 +156,7 @@ function copyImageData(srcPixels, dstPixels, width, height) {
     for (x = 0; x < width; ++x) {
       position = y * width + x;
       position *= 4;
-      dstPixels[position + 0] = srcPixels[position + 0];
+      dstPixels[position] = srcPixels[position];
       dstPixels[position + 1] = srcPixels[position + 1];
       dstPixels[position + 2] = srcPixels[position + 2];
       dstPixels[position + 3] = srcPixels[position + 3];
@@ -229,9 +229,9 @@ function displayWave(pixels){
   var transformedPixels = transformedImageData.data
   copyImageData(originalPixels,transformedPixels,pixels.width,pixels.height)
   //Variable to determine how many pixel to shift and the direction to shift
-  var amt = 20
-  var toLeft = true
-
+  var amt = 18
+  var increase = false
+  var count = 0
   for(let y = 0; y < videoHeight; y++){
     for(let x = 0; x < videoWidth; x++){
       //Getting pixel Index
@@ -239,39 +239,36 @@ function displayWave(pixels){
      
       let targetPixelIndex
 
-      //Determine which direction should the pixel shift
-      //Getting target pixel index on the same row, if the index is out of bound, make index the video width or 0 depends on the direction
-      if(toLeft){
+     
         if(x + amt >= videoWidth){
           targetPixelIndex = videoWidth * 4 * y + videoWidth * 4
         }
         else{
           targetPixelIndex = videoWidth * 4 * y + (x+amt) * 4;
         }
-      }
-      else{
-        if(x - amt <= 0){
-          targetPixelIndex = videoWidth * 4 * y + 0 * 4
-        }
-        else{
-          targetPixelIndex = videoWidth * 4 * y + (x-amt) * 4;
-        }
-      }
+    
       //Mapping
       transformedImageData.data[targetPixelIndex] = pixels.data[pixelIndex];
       transformedImageData.data[targetPixelIndex + 1] = pixels.data[pixelIndex + 1];
       transformedImageData.data[targetPixelIndex + 2] = pixels.data[pixelIndex + 2];
       transformedImageData.data[targetPixelIndex + 3] = pixels.data[pixelIndex + 3];
     }
-    //Decrease the amount to shift after each row
-    amt-=1
-    //If the shift amount == 0, change the direction and reset the shift amount
-    if(amt == 0){
-      toLeft = !toLeft
-      amt = 20
+
+    if(count == 0){
+      if (!increase)
+        amt-=1
+      else
+        amt+=1
+    }
+    
+    if(amt == 0 || amt == 18){
+      count++
+      if(count == 5){
+        increase = !increase
+        count = 0
+      }
     }
   }
-
   secondCtx.putImageData(transformedImageData, 0, 0);
   timeDisplayed++;
   console.log(timeDisplayed)
