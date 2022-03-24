@@ -33,6 +33,10 @@ let offsetX = null
 let offsetY = null
 
 let scale = null
+
+let videoHeight 
+let videoWidth 
+
 function loop() {
   if (video.srcObject || track) {
     track = video.srcObject.getTracks()[0];
@@ -41,8 +45,8 @@ function loop() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    let videoWidth = settings.width;
-    let videoHeight = settings.height;
+    videoWidth = settings.width;
+    videoHeight = settings.height;
 
     secondCanvas.width = videoWidth;
     secondCanvas.height = videoHeight;
@@ -76,7 +80,7 @@ function loop() {
     tempCtx.drawImage(video, 0, 0, settings.width, settings.height);
 
     let pixels = tempCtx.getImageData(0, 0, settings.width, settings.height);
-    switchDisplay(pixels, videoHeight, videoWidth)
+    switchDisplay(pixels)
 
 
   }
@@ -89,11 +93,11 @@ function loop() {
 }
 
 
-function switchDisplay(pixels, videoHeight, videoWidth) {
+function switchDisplay(pixels) {
 
   if (currentDisplay == "Gray Scale") {
     if (timeDisplayed < 1000) {
-      displayGreyScreen(pixels, videoHeight, videoWidth)
+      displayGreyScreen(pixels)
     }
     else {
       currentDisplay = "Spiral"
@@ -103,7 +107,7 @@ function switchDisplay(pixels, videoHeight, videoWidth) {
 
   if (currentDisplay == "Spiral") {
     if (timeDisplayed < 1000) {
-      displaySpiral(pixels, videoHeight, videoWidth)
+      displaySpiral(pixels)
     }
     else {
       currentDisplay = "Pixelate"
@@ -113,8 +117,8 @@ function switchDisplay(pixels, videoHeight, videoWidth) {
   }
 
   if (currentDisplay == "Pixelate") {
-    if (timeDisplayed < 1000) {
-      displayPixelate(pixels, videoHeight, videoWidth, 10)
+    if (timeDisplayed < 2000) {
+      displayPixelate(pixels, 10)
     }
     else {
       currentDisplay = "UpsideDown"
@@ -124,8 +128,18 @@ function switchDisplay(pixels, videoHeight, videoWidth) {
   }
 
   if (currentDisplay == "UpsideDown") {
+    if (timeDisplayed < 2000) {
+      displayUpsideDown(pixels)
+    }
+    else {
+      currentDisplay = "Underwater"
+      timeDisplayed = 0
+      window.requestAnimationFrame(loop, canvas);
+    }
+  }
+  if (currentDisplay == "Wave") {
     if (timeDisplayed < 1000) {
-      displayUpsideDown(pixels, videoHeight, videoWidth, 10)
+      displayWave(pixels)
     }
     else {
       currentDisplay = "Gray Scale"
@@ -134,6 +148,7 @@ function switchDisplay(pixels, videoHeight, videoWidth) {
     }
   }
 }
+
 
 function copyImageData(srcPixels, dstPixels, width, height) {
   var x, y, position;
@@ -149,7 +164,7 @@ function copyImageData(srcPixels, dstPixels, width, height) {
   }
 }
 
-function displaySpiral(pixels, videoHeight, videoWidth) {
+function displaySpiral(pixels) {
   var x, y, width, height, size, radius, centerX, centerY, sourcePosition, destPosition;
   var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
   var originalPixels = pixels.data;
@@ -169,29 +184,23 @@ function displaySpiral(pixels, videoHeight, videoWidth) {
   secondCtx.putImageData(transformedImageData, 0, 0)
   for (y = -radius; y < radius; ++y) {
     for (x = -radius; x < radius; ++x) {
-      // Check if the pixel is inside the effect circle
+
       if (x * x + y * y <= radius * radius) {
-        // Calculate the pixel array position
+
         destPosition = (y + centerY) * width + x + centerX;
         destPosition *= 4;
 
-        // Transform the pixel cartesian coordinates (x, y) to polar coordinates (r, alpha)
         r = Math.sqrt(x * x + y * y);
         alpha = Math.atan2(y, x);
 
-        // Remember that the angle alpha is in radians, transform it to degrees 
         degrees = (alpha * 180.0) / Math.PI;
 
-        // Shift the angle by a constant delta
-        // Note the '-' sign was changed by '+' the inverted function
-        degrees += 1.5* r;
+        degrees += 1.5 * r;
 
-        // Transform back from polar coordinates to cartesian 
         alpha = (degrees * Math.PI) / 180.0;
         newY = Math.floor(r * Math.sin(alpha));
         newX = Math.floor(r * Math.cos(alpha));
 
-        // Get the new pixel location 
         sourcePosition = (newY + centerY) * width + newX + centerX;
         sourcePosition *= 4;
 
@@ -214,14 +223,72 @@ function displaySpiral(pixels, videoHeight, videoWidth) {
   window.requestAnimationFrame(loop, canvas);
 }
 
-function displayUpsideDown(pixels, videoHeight, videoWidth)
-{
+function displayWave(pixels){
+  var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
+  var originalPixels = pixels.data
+  var transformedPixels = transformedImageData.data
+  copyImageData(originalPixels,transformedPixels,pixels.width,pixels.height)
+  //Variable to determine how many pixel to shift and the direction to shift
+  var amt = 20
+  var toLeft = true
+
+  for(let y = 0; y < videoHeight; y++){
+    for(let x = 0; x < videoWidth; x++){
+      //Getting pixel Index
+      let pixelIndex = videoWidth * 4 * y + x * 4;
+     
+      let targetPixelIndex
+
+      //Determine which direction should the pixel shift
+      //Getting target pixel index on the same row, if the index is out of bound, make index the video width or 0 depends on the direction
+      if(toLeft){
+        if(x + amt >= videoWidth){
+          targetPixelIndex = videoWidth * 4 * y + videoWidth * 4
+        }
+        else{
+          targetPixelIndex = videoWidth * 4 * y + (x+amt) * 4;
+        }
+      }
+      else{
+        if(x - amt <= 0){
+          targetPixelIndex = videoWidth * 4 * y + 0 * 4
+        }
+        else{
+          targetPixelIndex = videoWidth * 4 * y + (x-amt) * 4;
+        }
+      }
+      //Mapping
+      transformedImageData.data[targetPixelIndex] = pixels.data[pixelIndex];
+      transformedImageData.data[targetPixelIndex + 1] = pixels.data[pixelIndex + 1];
+      transformedImageData.data[targetPixelIndex + 2] = pixels.data[pixelIndex + 2];
+      transformedImageData.data[targetPixelIndex + 3] = pixels.data[pixelIndex + 3];
+    }
+    //Decrease the amount to shift after each row
+    amt-=1
+    //If the shift amount == 0, change the direction and reset the shift amount
+    if(amt == 0){
+      toLeft = !toLeft
+      amt = 20
+    }
+  }
+
+  secondCtx.putImageData(transformedImageData, 0, 0);
+  timeDisplayed++;
+  console.log(timeDisplayed)
+
+  ctx.drawImage(secondCanvas, 0, 0, videoWidth, videoHeight,
+    offsetX, offsetY, scale * videoWidth, scale * videoHeight);
+
+  window.requestAnimationFrame(loop, canvas);
+
+}
+
+
+function displayUpsideDown(pixels) {
   var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
 
-  for(let y = 0; y < videoHeight; y++)
-  {
-    for(let x = 0; x < videoWidth; x++)
-    {
+  for (let y = 0; y < videoHeight; y++) {
+    for (let x = 0; x < videoWidth; x++) {
       let pixelIndex = videoWidth * 4 * y + x * 4;
       let targetPixelIndex = videoWidth * 4 * (videoHeight - 1 - y) + x * 4;
 
@@ -242,15 +309,12 @@ function displayUpsideDown(pixels, videoHeight, videoWidth)
   window.requestAnimationFrame(loop, canvas);
 }
 
-function displayPixelate(pixels, videoHeight, videoWidth, scaleFactor)
-{
+function displayPixelate(pixels, scaleFactor) {
   var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
-  
+
   //Loop over all pixels in the image
-  for(let y = 0; y < videoHeight; y += scaleFactor)
-  {
-    for(let x = 0; x < videoWidth; x += scaleFactor)
-    {
+  for (let y = 0; y < videoHeight; y += scaleFactor) {
+    for (let x = 0; x < videoWidth; x += scaleFactor) {
       let totalR = 0;
       let totalG = 0;
       let totalB = 0;
@@ -261,10 +325,8 @@ function displayPixelate(pixels, videoHeight, videoWidth, scaleFactor)
       let maxX = Math.min((x + scaleFactor), videoWidth);
 
       //Loop over all pixels in the next 'pixel zone' and get the average RGBA value
-      for(let pixelY = y; pixelY < maxY; pixelY++)
-      {
-        for(let pixelX = x; pixelX < maxX; pixelX++)
-        {
+      for (let pixelY = y; pixelY < maxY; pixelY++) {
+        for (let pixelX = x; pixelX < maxX; pixelX++) {
           let pixelIndex = videoWidth * 4 * pixelY + pixelX * 4;
 
           totalR += pixels.data[pixelIndex];
@@ -279,10 +341,8 @@ function displayPixelate(pixels, videoHeight, videoWidth, scaleFactor)
       let averageA = Math.round(totalA / ((maxY - y) * (maxX - x)));
 
       //Set all the target pixels to the average RGBA values
-      for(let pixelY = y; pixelY < maxY; pixelY++)
-      {
-        for(let pixelX = x; pixelX < maxX; pixelX++)
-        {
+      for (let pixelY = y; pixelY < maxY; pixelY++) {
+        for (let pixelX = x; pixelX < maxX; pixelX++) {
           let pixelIndex = videoWidth * 4 * pixelY + pixelX * 4;
 
           transformedImageData.data[pixelIndex] = averageR;
@@ -304,8 +364,7 @@ function displayPixelate(pixels, videoHeight, videoWidth, scaleFactor)
   window.requestAnimationFrame(loop, canvas);
 }
 
-
-function displayGreyScreen(pixels, videoHeight, videoWidth) {
+function displayGreyScreen(pixels) {
   for (let y = 0; y < videoHeight; y++) {
     for (let x = 0; x < videoWidth; x++) {
       //The data is linear, get the x,y coordinate
@@ -338,3 +397,4 @@ function displayGreyScreen(pixels, videoHeight, videoWidth) {
 
   window.requestAnimationFrame(loop, canvas);
 }
+
