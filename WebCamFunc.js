@@ -34,10 +34,17 @@ let offsetY = null
 
 let scale = null
 
-let videoHeight 
-let videoWidth 
+let videoHeight
+let videoWidth
 
 let previousPixel
+
+let refresh = 0
+
+let previousMinX = Number.MAX_SAFE_INTEGER
+let previousMaxX = 0
+let initial = true
+
 
 function loop() {
   if (video.srcObject || track) {
@@ -83,7 +90,9 @@ function loop() {
 
     let pixels = tempCtx.getImageData(0, 0, settings.width, settings.height);
     switchDisplay(pixels)
-    previousPixel = tempCtx.getImageData(0, 0, settings.width, settings.height);
+    if(previousPixel == null || refresh % 10 == 0)
+      previousPixel = tempCtx.getImageData(0, 0, settings.width, settings.height);
+    refresh++
 
   }
   else {
@@ -97,17 +106,17 @@ function loop() {
 function switchDisplay(pixels) {
 
   if (currentDisplay == "Gray Scale") {
-    if (timeDisplayed < 100) {
+    if (timeDisplayed < 500) {
       displayGreyScreen(pixels)
     }
     else {
-      currentDisplay = "BackgroundRemoval"
+      currentDisplay = "Spiral"
       timeDisplayed = 0
     }
   }
 
   if (currentDisplay == "Spiral") {
-    if (timeDisplayed < 1000) {
+    if (timeDisplayed < 500) {
       displaySpiral(pixels)
     }
     else {
@@ -118,7 +127,7 @@ function switchDisplay(pixels) {
   }
 
   if (currentDisplay == "Pixelate") {
-    if (timeDisplayed < 2000) {
+    if (timeDisplayed < 500) {
       displayPixelate(pixels, 10)
     }
     else {
@@ -129,17 +138,17 @@ function switchDisplay(pixels) {
   }
 
   if (currentDisplay == "UpsideDown") {
-    if (timeDisplayed < 2000) {
+    if (timeDisplayed < 500) {
       displayUpsideDown(pixels)
     }
     else {
-      currentDisplay = "Underwater"
+      currentDisplay = "Wave"
       timeDisplayed = 0
       window.requestAnimationFrame(loop, canvas);
     }
   }
   if (currentDisplay == "Wave") {
-    if (timeDisplayed < 1000) {
+    if (timeDisplayed < 500) {
       displayWave(pixels)
     }
     else {
@@ -148,15 +157,15 @@ function switchDisplay(pixels) {
       window.requestAnimationFrame(loop, canvas);
     }
   }
-  if(currentDisplay == "BackgroundRemoval"){
-    //if (timeDisplayed < 1000) {
-      backgroundRemoval(pixels)
-    /*}
-    else {
-      currentDisplay = "Gray Scale"
-      timeDisplayed = 0
-      window.requestAnimationFrame(loop, canvas);
-    }*/
+  if (currentDisplay == "BackgroundRemoval") {
+     if (timeDisplayed < 500) {
+    backgroundRemoval(pixels)
+     }
+     else {
+       currentDisplay = "Gray Scale"
+       timeDisplayed = 0
+       window.requestAnimationFrame(loop, canvas);
+     }
   }
 }
 
@@ -233,30 +242,33 @@ function displaySpiral(pixels) {
   window.requestAnimationFrame(loop, canvas);
 }
 
-function displayWave(pixels){
+
+//Mirror
+//Recolor
+function displayWave(pixels) {
   var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
   var originalPixels = pixels.data
   var transformedPixels = transformedImageData.data
-  copyImageData(originalPixels,transformedPixels,pixels.width,pixels.height)
+  copyImageData(originalPixels, transformedPixels, pixels.width, pixels.height)
   //Variable to determine how many pixel to shift and the direction to shift
   var amt = 18
   var increase = false
   var count = 0
-  for(let y = 0; y < videoHeight; y++){
-    for(let x = 0; x < videoWidth; x++){
+  for (let y = 0; y < videoHeight; y++) {
+    for (let x = 0; x < videoWidth; x++) {
       //Getting pixel Index
       let pixelIndex = videoWidth * 4 * y + x * 4;
-     
+
       let targetPixelIndex
 
-     
-        if(x + amt >= videoWidth){
-          targetPixelIndex = videoWidth * 4 * y + videoWidth * 4
-        }
-        else{
-          targetPixelIndex = videoWidth * 4 * y + (x+amt) * 4;
-        }
-    
+
+      if (x + amt >= videoWidth) {
+        targetPixelIndex = videoWidth * 4 * y + videoWidth * 4
+      }
+      else {
+        targetPixelIndex = videoWidth * 4 * y + (x + amt) * 4;
+      }
+
       //Mapping
       transformedImageData.data[targetPixelIndex] = pixels.data[pixelIndex];
       transformedImageData.data[targetPixelIndex + 1] = pixels.data[pixelIndex + 1];
@@ -264,16 +276,16 @@ function displayWave(pixels){
       transformedImageData.data[targetPixelIndex + 3] = pixels.data[pixelIndex + 3];
     }
 
-    if(count == 0){
+    if (count == 0) {
       if (!increase)
-        amt-=1
+        amt -= 1
       else
-        amt+=1
+        amt += 1
     }
-    
-    if(amt == 0 || amt == 18){
+
+    if (amt == 0 || amt == 18) {
       count++
-      if(count == 5){
+      if (count == 5) {
         increase = !increase
         count = 0
       }
@@ -404,47 +416,65 @@ function displayGreyScreen(pixels) {
   window.requestAnimationFrame(loop, canvas);
 }
 
-function backgroundRemoval(pixels){
+function backgroundRemoval(pixels) {
   let minX = videoWidth
   let maxX = 0
-  for(let y = 0; y<videoHeight;y++){
-    for(let x = 0 ; x<videoWidth; x++){
-      let pixelIndex = videoWidth * 4 * y + x * 4;
+  
+  for (let y = 0; y < videoHeight; y++) {
+   
+    for (let x = 0; x < videoWidth; x++) {
 
+      let pixelIndex = videoWidth * 4 * y + x * 4;
       let previousR = previousPixel.data[pixelIndex]
-      let previousG = previousPixel.data[pixelIndex+1]
-      let previousB = previousPixel.data[pixelIndex+2]
-      let previousA = previousPixel.data[pixelIndex+3]
+      let previousG = previousPixel.data[pixelIndex + 1]
+      let previousB = previousPixel.data[pixelIndex + 2]
+      let previousA = previousPixel.data[pixelIndex + 3]
       let currentR = pixels.data[pixelIndex]
-      let currentG = pixels.data[pixelIndex+1]
-      let currentB = pixels.data[pixelIndex+2]
-      let currentA = pixels.data[pixelIndex+3]
+      let currentG = pixels.data[pixelIndex + 1]
+      let currentB = pixels.data[pixelIndex + 2]
+      let currentA = pixels.data[pixelIndex + 3]
 
-      let difference = Math.abs(previousR - currentR) + Math.abs(previousA-currentA) + Math.abs(previousB-currentB) + Math.abs(previousG-currentG)
-      
-      if(difference >= 65){
-        if(minX > x)
+
+      //Calculate the difference in pixel
+      let difference = Math.abs(previousR - currentR) + Math.abs(previousA - currentA) + Math.abs(previousB - currentB) + Math.abs(previousG - currentG)
+
+
+
+      //Determine the zone
+      if (difference >= 200) {
+        if (minX > x) {
           minX = x
-        if(maxX < x)
+        }
+        if (maxX < x) {
           maxX = x
+        }
       }
     }
-    for(let x = 0 ; x<videoWidth; x++){
+   
+
+    //If X is out side of the zone, change the rgb pixel to black
+    for (let x = 0; x < videoWidth; x++) {
       let pixelIndex = videoWidth * 4 * y + x * 4;
-      if(x < minX || x > maxX){
+      if (x <= minX || x >= maxX) {
         pixels.data[pixelIndex] = 0
-        pixels.data[pixelIndex+1] = 0
-        pixels.data[pixelIndex+2] = 0
-        pixels.data[pixelIndex+3] = 0
+        pixels.data[pixelIndex + 1] = 0
+        pixels.data[pixelIndex + 2] = 0
+        pixels.data[pixelIndex + 3] = 0
       }
     }
+
   }
+
+
   secondCtx.putImageData(pixels, 0, 0);
   timeDisplayed++;
+  refresh++
+  
   console.log(timeDisplayed)
 
   ctx.drawImage(secondCanvas, 0, 0, videoWidth, videoHeight,
     offsetX, offsetY, scale * videoWidth, scale * videoHeight);
 
   window.requestAnimationFrame(loop, canvas);
+
 }
