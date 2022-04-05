@@ -162,11 +162,21 @@ function switchDisplay(pixels) {
     backgroundRemoval(pixels)
      }
      else {
-       currentDisplay = "Gray Scale"
+       currentDisplay = "Mirror"
        timeDisplayed = 0
        window.requestAnimationFrame(loop, canvas);
      }
   }
+  if (currentDisplay == "Mirror") {
+    if (timeDisplayed < 500) {
+   displayMirror(pixels)
+    }
+    else {
+      currentDisplay = "Gray Scale"
+      timeDisplayed = 0
+      window.requestAnimationFrame(loop, canvas);
+    }
+ }
 }
 
 function copyImageData(srcPixels, dstPixels, width, height) {
@@ -477,4 +487,34 @@ function backgroundRemoval(pixels) {
 
   window.requestAnimationFrame(loop, canvas);
 
+}
+
+function displayMirror(pixels) {
+  var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
+
+  for (let y = 0; y < videoHeight; y++) {
+    for (let x = 0; x < videoWidth / 2; x++) {
+      let pixelIndex = videoWidth * 4 * y + x * 4;
+      let targetPixelIndex = videoWidth * 4 * y + (videoWidth - x - 1) * 4;
+
+      transformedImageData.data[pixelIndex] = pixels.data[pixelIndex];
+      transformedImageData.data[pixelIndex + 1] = pixels.data[pixelIndex + 1];
+      transformedImageData.data[pixelIndex + 2] = pixels.data[pixelIndex + 2];
+      transformedImageData.data[pixelIndex + 3] = pixels.data[pixelIndex + 3];
+      
+      transformedImageData.data[targetPixelIndex] = pixels.data[pixelIndex];
+      transformedImageData.data[targetPixelIndex + 1] = pixels.data[pixelIndex + 1];
+      transformedImageData.data[targetPixelIndex + 2] = pixels.data[pixelIndex + 2];
+      transformedImageData.data[targetPixelIndex + 3] = pixels.data[pixelIndex + 3];
+    }
+  }
+
+  secondCtx.putImageData(transformedImageData, 0, 0);
+  timeDisplayed++;
+  console.log(timeDisplayed)
+
+  ctx.drawImage(secondCanvas, 0, 0, videoWidth, videoHeight,
+    offsetX, offsetY, scale * videoWidth, scale * videoHeight);
+
+  window.requestAnimationFrame(loop, canvas);
 }
