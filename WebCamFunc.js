@@ -90,14 +90,17 @@ function loop() {
 
     let pixels = tempCtx.getImageData(0, 0, settings.width, settings.height);
     switchDisplay(pixels)
-    if(previousPixel == null || refresh % 10 == 0)
+    if(previousPixel == null){
       previousPixel = tempCtx.getImageData(0, 0, settings.width, settings.height);
+      refresh = 0
+    }
+     
     refresh++
 
   }
   else {
-    ctx.fillStyle = "magenta"
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "black"
+    ctx.fillRect(0, 0, window.width,  window.height);
     window.requestAnimationFrame(loop, canvas);
 
   }
@@ -172,9 +175,7 @@ function switchDisplay(pixels) {
    displayMirror(pixels)
     }
     else {
-      currentDisplay = "Gray Scale"
-      timeDisplayed = 0
-      window.requestAnimationFrame(loop, canvas);
+      window.location.href = window.location.href
     }
  }
 }
@@ -210,7 +211,6 @@ function displaySpiral(pixels) {
   radius = Math.floor(size / 2);
 
   copyImageData(originalPixels, transformedPixels, width, height);
-  secondCtx.putImageData(transformedImageData, 0, 0)
   for (y = -radius; y < radius; ++y) {
     for (x = -radius; x < radius; ++x) {
 
@@ -253,8 +253,6 @@ function displaySpiral(pixels) {
 }
 
 
-//Mirror
-//Recolor
 function displayWave(pixels) {
   var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
   var originalPixels = pixels.data
@@ -301,6 +299,7 @@ function displayWave(pixels) {
       }
     }
   }
+  previousPixel = tempCtx.getImageData(0, 0, settings.width, settings.height);
   secondCtx.putImageData(transformedImageData, 0, 0);
   timeDisplayed++;
   console.log(timeDisplayed)
@@ -491,7 +490,6 @@ function backgroundRemoval(pixels) {
 
 function displayMirror(pixels) {
   var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
-
   for (let y = 0; y < videoHeight; y++) {
     for (let x = 0; x < videoWidth / 2; x++) {
       let pixelIndex = videoWidth * 4 * y + x * 4;
