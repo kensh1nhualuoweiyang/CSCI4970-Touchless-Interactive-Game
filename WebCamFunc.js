@@ -33,6 +33,19 @@ let offsetX = null
 let offsetY = null
 
 let scale = null
+
+let videoHeight
+let videoWidth
+
+let previousPixel
+
+let refresh = 0
+
+let previousMinX = Number.MAX_SAFE_INTEGER
+let previousMaxX = 0
+let initial = true
+
+
 function loop() {
   if (video.srcObject || track) {
     track = video.srcObject.getTracks()[0];
@@ -41,8 +54,8 @@ function loop() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    let videoWidth = settings.width;
-    let videoHeight = settings.height;
+    videoWidth = settings.width;
+    videoHeight = settings.height;
 
     secondCanvas.width = videoWidth;
     secondCanvas.height = videoHeight;
@@ -76,8 +89,10 @@ function loop() {
     tempCtx.drawImage(video, 0, 0, settings.width, settings.height);
 
     let pixels = tempCtx.getImageData(0, 0, settings.width, settings.height);
-    switchDisplay(pixels, videoHeight, videoWidth)
-
+    switchDisplay(pixels)
+    if(previousPixel == null || refresh % 10 == 0)
+      previousPixel = tempCtx.getImageData(0, 0, settings.width, settings.height);
+    refresh++
 
   }
   else {
@@ -88,12 +103,11 @@ function loop() {
   }
 }
 
-
-function switchDisplay(pixels, videoHeight, videoWidth) {
+function switchDisplay(pixels) {
 
   if (currentDisplay == "Gray Scale") {
-    if (timeDisplayed < 1000) {
-      displayGreyScreen(pixels, videoHeight, videoWidth)
+    if (timeDisplayed < 500) {
+      displayGreyScreen(pixels)
     }
     else {
       currentDisplay = "Spiral"
@@ -102,14 +116,56 @@ function switchDisplay(pixels, videoHeight, videoWidth) {
   }
 
   if (currentDisplay == "Spiral") {
-    if (timeDisplayed < 1000) {
-      displaySpiral(pixels, videoHeight, videoWidth)
+    if (timeDisplayed < 500) {
+      displaySpiral(pixels)
     }
     else {
-      currentDisplay = "Gray Scale"
+      currentDisplay = "Pixelate"
       timeDisplayed = 0
       window.requestAnimationFrame(loop, canvas);
     }
+  }
+
+  if (currentDisplay == "Pixelate") {
+    if (timeDisplayed < 500) {
+      displayPixelate(pixels, 10)
+    }
+    else {
+      currentDisplay = "UpsideDown"
+      timeDisplayed = 0
+      window.requestAnimationFrame(loop, canvas);
+    }
+  }
+
+  if (currentDisplay == "UpsideDown") {
+    if (timeDisplayed < 500) {
+      displayUpsideDown(pixels)
+    }
+    else {
+      currentDisplay = "Wave"
+      timeDisplayed = 0
+      window.requestAnimationFrame(loop, canvas);
+    }
+  }
+  if (currentDisplay == "Wave") {
+    if (timeDisplayed < 500) {
+      displayWave(pixels)
+    }
+    else {
+      currentDisplay = "BackgroundRemoval"
+      timeDisplayed = 0
+      window.requestAnimationFrame(loop, canvas);
+    }
+  }
+  if (currentDisplay == "BackgroundRemoval") {
+     if (timeDisplayed < 500) {
+    backgroundRemoval(pixels)
+     }
+     else {
+       currentDisplay = "Gray Scale"
+       timeDisplayed = 0
+       window.requestAnimationFrame(loop, canvas);
+     }
   }
 }
 
@@ -119,7 +175,7 @@ function copyImageData(srcPixels, dstPixels, width, height) {
     for (x = 0; x < width; ++x) {
       position = y * width + x;
       position *= 4;
-      dstPixels[position + 0] = srcPixels[position + 0];
+      dstPixels[position] = srcPixels[position];
       dstPixels[position + 1] = srcPixels[position + 1];
       dstPixels[position + 2] = srcPixels[position + 2];
       dstPixels[position + 3] = srcPixels[position + 3];
@@ -127,7 +183,7 @@ function copyImageData(srcPixels, dstPixels, width, height) {
   }
 }
 
-function displaySpiral(pixels, videoHeight, videoWidth) {
+function displaySpiral(pixels) {
   var x, y, width, height, size, radius, centerX, centerY, sourcePosition, destPosition;
   var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
   var originalPixels = pixels.data;
@@ -147,29 +203,23 @@ function displaySpiral(pixels, videoHeight, videoWidth) {
   secondCtx.putImageData(transformedImageData, 0, 0)
   for (y = -radius; y < radius; ++y) {
     for (x = -radius; x < radius; ++x) {
-      // Check if the pixel is inside the effect circle
+
       if (x * x + y * y <= radius * radius) {
-        // Calculate the pixel array position
+
         destPosition = (y + centerY) * width + x + centerX;
         destPosition *= 4;
 
-        // Transform the pixel cartesian coordinates (x, y) to polar coordinates (r, alpha)
         r = Math.sqrt(x * x + y * y);
         alpha = Math.atan2(y, x);
 
-        // Remember that the angle alpha is in radians, transform it to degrees 
         degrees = (alpha * 180.0) / Math.PI;
 
-        // Shift the angle by a constant delta
-        // Note the '-' sign was changed by '+' the inverted function
-        degrees += 1.5* r;
+        degrees += 1.5 * r;
 
-        // Transform back from polar coordinates to cartesian 
         alpha = (degrees * Math.PI) / 180.0;
         newY = Math.floor(r * Math.sin(alpha));
         newX = Math.floor(r * Math.cos(alpha));
 
-        // Get the new pixel location 
         sourcePosition = (newY + centerY) * width + newX + centerX;
         sourcePosition *= 4;
 
@@ -193,9 +243,146 @@ function displaySpiral(pixels, videoHeight, videoWidth) {
 }
 
 
+//Mirror
+//Recolor
+function displayWave(pixels) {
+  var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
+  var originalPixels = pixels.data
+  var transformedPixels = transformedImageData.data
+  copyImageData(originalPixels, transformedPixels, pixels.width, pixels.height)
+  //Variable to determine how many pixel to shift and the direction to shift
+  var amt = 18
+  var increase = false
+  var count = 0
+  for (let y = 0; y < videoHeight; y++) {
+    for (let x = 0; x < videoWidth; x++) {
+      //Getting pixel Index
+      let pixelIndex = videoWidth * 4 * y + x * 4;
+
+      let targetPixelIndex
 
 
-function displayGreyScreen(pixels, videoHeight, videoWidth) {
+      if (x + amt >= videoWidth) {
+        targetPixelIndex = videoWidth * 4 * y + videoWidth * 4
+      }
+      else {
+        targetPixelIndex = videoWidth * 4 * y + (x + amt) * 4;
+      }
+
+      //Mapping
+      transformedImageData.data[targetPixelIndex] = pixels.data[pixelIndex];
+      transformedImageData.data[targetPixelIndex + 1] = pixels.data[pixelIndex + 1];
+      transformedImageData.data[targetPixelIndex + 2] = pixels.data[pixelIndex + 2];
+      transformedImageData.data[targetPixelIndex + 3] = pixels.data[pixelIndex + 3];
+    }
+
+    if (count == 0) {
+      if (!increase)
+        amt -= 1
+      else
+        amt += 1
+    }
+
+    if (amt == 0 || amt == 18) {
+      count++
+      if (count == 5) {
+        increase = !increase
+        count = 0
+      }
+    }
+  }
+  secondCtx.putImageData(transformedImageData, 0, 0);
+  timeDisplayed++;
+  console.log(timeDisplayed)
+
+  ctx.drawImage(secondCanvas, 0, 0, videoWidth, videoHeight,
+    offsetX, offsetY, scale * videoWidth, scale * videoHeight);
+
+  window.requestAnimationFrame(loop, canvas);
+
+}
+
+function displayUpsideDown(pixels) {
+  var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
+
+  for (let y = 0; y < videoHeight; y++) {
+    for (let x = 0; x < videoWidth; x++) {
+      let pixelIndex = videoWidth * 4 * y + x * 4;
+      let targetPixelIndex = videoWidth * 4 * (videoHeight - 1 - y) + x * 4;
+
+      transformedImageData.data[targetPixelIndex] = pixels.data[pixelIndex];
+      transformedImageData.data[targetPixelIndex + 1] = pixels.data[pixelIndex + 1];
+      transformedImageData.data[targetPixelIndex + 2] = pixels.data[pixelIndex + 2];
+      transformedImageData.data[targetPixelIndex + 3] = pixels.data[pixelIndex + 3];
+    }
+  }
+
+  secondCtx.putImageData(transformedImageData, 0, 0);
+  timeDisplayed++;
+  console.log(timeDisplayed)
+
+  ctx.drawImage(secondCanvas, 0, 0, videoWidth, videoHeight,
+    offsetX, offsetY, scale * videoWidth, scale * videoHeight);
+
+  window.requestAnimationFrame(loop, canvas);
+}
+
+function displayPixelate(pixels, scaleFactor) {
+  var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
+
+  //Loop over all pixels in the image
+  for (let y = 0; y < videoHeight; y += scaleFactor) {
+    for (let x = 0; x < videoWidth; x += scaleFactor) {
+      let totalR = 0;
+      let totalG = 0;
+      let totalB = 0;
+      let totalA = 0;
+
+      //Find the maximum x and y values in the case that the image does not divide into an even amount of 'new pixels'
+      let maxY = Math.min((y + scaleFactor), videoHeight);
+      let maxX = Math.min((x + scaleFactor), videoWidth);
+
+      //Loop over all pixels in the next 'pixel zone' and get the average RGBA value
+      for (let pixelY = y; pixelY < maxY; pixelY++) {
+        for (let pixelX = x; pixelX < maxX; pixelX++) {
+          let pixelIndex = videoWidth * 4 * pixelY + pixelX * 4;
+
+          totalR += pixels.data[pixelIndex];
+          totalG += pixels.data[pixelIndex + 1];
+          totalB += pixels.data[pixelIndex + 2];
+          totalA += pixels.data[pixelIndex + 3];
+        }
+      }
+      let averageR = Math.round(totalR / ((maxY - y) * (maxX - x)));
+      let averageG = Math.round(totalG / ((maxY - y) * (maxX - x)));
+      let averageB = Math.round(totalB / ((maxY - y) * (maxX - x)));
+      let averageA = Math.round(totalA / ((maxY - y) * (maxX - x)));
+
+      //Set all the target pixels to the average RGBA values
+      for (let pixelY = y; pixelY < maxY; pixelY++) {
+        for (let pixelX = x; pixelX < maxX; pixelX++) {
+          let pixelIndex = videoWidth * 4 * pixelY + pixelX * 4;
+
+          transformedImageData.data[pixelIndex] = averageR;
+          transformedImageData.data[pixelIndex + 1] = averageG;
+          transformedImageData.data[pixelIndex + 2] = averageB;
+          transformedImageData.data[pixelIndex + 3] = averageA;
+        }
+      }
+    }
+  }
+
+  secondCtx.putImageData(transformedImageData, 0, 0);
+  timeDisplayed++;
+  console.log(timeDisplayed)
+
+  ctx.drawImage(secondCanvas, 0, 0, videoWidth, videoHeight,
+    offsetX, offsetY, scale * videoWidth, scale * videoHeight);
+
+  window.requestAnimationFrame(loop, canvas);
+}
+
+function displayGreyScreen(pixels) {
   for (let y = 0; y < videoHeight; y++) {
     for (let x = 0; x < videoWidth; x++) {
       //The data is linear, get the x,y coordinate
@@ -227,4 +414,67 @@ function displayGreyScreen(pixels, videoHeight, videoWidth) {
     offsetX, offsetY, scale * videoWidth, scale * videoHeight);
 
   window.requestAnimationFrame(loop, canvas);
+}
+
+function backgroundRemoval(pixels) {
+  let minX = videoWidth
+  let maxX = 0
+  
+  for (let y = 0; y < videoHeight; y++) {
+   
+    for (let x = 0; x < videoWidth; x++) {
+
+      let pixelIndex = videoWidth * 4 * y + x * 4;
+      let previousR = previousPixel.data[pixelIndex]
+      let previousG = previousPixel.data[pixelIndex + 1]
+      let previousB = previousPixel.data[pixelIndex + 2]
+      let previousA = previousPixel.data[pixelIndex + 3]
+      let currentR = pixels.data[pixelIndex]
+      let currentG = pixels.data[pixelIndex + 1]
+      let currentB = pixels.data[pixelIndex + 2]
+      let currentA = pixels.data[pixelIndex + 3]
+
+
+      //Calculate the difference in pixel
+      let difference = Math.abs(previousR - currentR) + Math.abs(previousA - currentA) + Math.abs(previousB - currentB) + Math.abs(previousG - currentG)
+
+
+
+      //Determine the zone
+      if (difference >= 200) {
+        if (minX > x) {
+          minX = x
+        }
+        if (maxX < x) {
+          maxX = x
+        }
+      }
+    }
+   
+
+    //If X is out side of the zone, change the rgb pixel to black
+    for (let x = 0; x < videoWidth; x++) {
+      let pixelIndex = videoWidth * 4 * y + x * 4;
+      if (x <= minX || x >= maxX) {
+        pixels.data[pixelIndex] = 0
+        pixels.data[pixelIndex + 1] = 0
+        pixels.data[pixelIndex + 2] = 0
+        pixels.data[pixelIndex + 3] = 0
+      }
+    }
+
+  }
+
+
+  secondCtx.putImageData(pixels, 0, 0);
+  timeDisplayed++;
+  refresh++
+  
+  console.log(timeDisplayed)
+
+  ctx.drawImage(secondCanvas, 0, 0, videoWidth, videoHeight,
+    offsetX, offsetY, scale * videoWidth, scale * videoHeight);
+
+  window.requestAnimationFrame(loop, canvas);
+
 }
