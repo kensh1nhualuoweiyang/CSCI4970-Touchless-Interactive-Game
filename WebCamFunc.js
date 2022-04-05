@@ -46,13 +46,14 @@ let previousMaxX = 0
 let initial = true
 
 
+
 function loop() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
   if (video.srcObject || track) {
     track = video.srcObject.getTracks()[0];
     settings = track.getSettings();
 
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
 
     videoWidth = settings.width;
     videoHeight = settings.height;
@@ -100,7 +101,8 @@ function loop() {
   }
   else {
     ctx.fillStyle = "black"
-    ctx.fillRect(0, 0, window.width,  window.height);
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+   
     window.requestAnimationFrame(loop, canvas);
 
   }
