@@ -1,124 +1,8 @@
 
 /**
- * The video element that serves the purpose of receving the input through webcam
- **/
-let video = document.createElement("video");
-video.autoplay = true;
-
-
-if (navigator.mediaDevices.getUserMedia) {
-  navigator.mediaDevices.getUserMedia({ video: true })
-    .then(function (stream) {
-      video.srcObject = stream;
-    })
-    .catch(function (error) {
-      console.log("Something went wrong! " + error);
-    });
-}
-
-/**
- * The canvas element that serves the purpose of controlling the canvas declared within the html
- **/
-let canvas = document.querySelector("#canvas")
-
-/**
- * The contex element that serves the purpose of controlling the canvas declared within the html
- **/
-let ctx = canvas.getContext("2d");
-
-
-window.requestAnimationFrame(loop, canvas);
-
-/**
- * Track element that represent the video source from the video element
- */
-let track = null;
-
-/**
- * The settings that's contain within the video element
- */
-let settings = null;
-
-/**
- * A temporary canvas where the each unalternative frame will be store and drawn
- */
-let tempCanvas = document.createElement("canvas");
-
-/**
- * A temporary context that belongs to the temporary canvas
- */
-let tempCtx = tempCanvas.getContext("2d");
-
-
-/**
- * A canvas element where the alternative image will be drawn into
- */
-let secondCanvas = document.createElement("canvas");
-
-/**
- * A context element where the alternative image will be drawn into
- */
-let secondCtx = secondCanvas.getContext("2d");
-
-
-/**
- * The element that represents which effect will be utilize
- */
-let currentDisplay = "Gray Scale"
-
-/**
- * A small timer element that represent the time that each effect has been displayed for
- */
-let timeDisplayed = 0
-
-/**
- * A scale element that represent how the image will be scaled in the X axis
- */
-let proposedScaleX
-
-/**
- * A scale element that represent how the image will be scaled in the Y axis
- */
-let proposedScaleY
-
-/**
- * A offset element that represent the amount of offset on the X axis
- */
-let offsetX
-
-
-/**
- * A offset element that represent the amount of offset on the Y axis
- */
-let offsetY
-
-
-/**
- * The element that represents the final scale amount
- */
-let scale
-
-/**
- * Element that stored the video height
- */
-let videoHeight
-
-/**
- * Element that stored the video width
- */
-let videoWidth
-
-/**
- * An element that consist of the image data of the previous frame
- */
-let previousPixel
-
-
-
-/**
  * Main method utilized to loop over the different effects
  */
-function loop() {
+ function loop() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
   if (video.srcObject || track) {
@@ -627,3 +511,118 @@ function displayMirror(pixels) {
 
   window.requestAnimationFrame(loop, canvas);
 }
+
+/**
+ * The video element that serves the purpose of receving the input through webcam
+ **/
+let video = document.createElement("video");
+video.autoplay = true;
+
+
+if (navigator.mediaDevices.getUserMedia) {
+  navigator.mediaDevices.getUserMedia({ video: true })
+    .then(function (stream) {
+      video.srcObject = stream;
+    })
+    .catch(function (error) {
+      console.log("Something went wrong! " + error);
+    });
+}
+
+/**
+ * The canvas element that serves the purpose of controlling the canvas declared within the html
+ **/
+let canvas = document.querySelector("#canvas")
+
+/**
+ * The contex element that serves the purpose of controlling the canvas declared within the html
+ **/
+let ctx = canvas.getContext("2d");
+
+
+window.requestAnimationFrame(loop, canvas);
+
+/**
+ * Track element that represent the video source from the video element
+ */
+let track = null;
+
+/**
+ * The settings that's contain within the video element
+ */
+let settings = null;
+
+/**
+ * A temporary canvas where the each unalternative frame will be store and drawn
+ */
+let tempCanvas = document.createElement("canvas");
+
+/**
+ * A temporary context that belongs to the temporary canvas
+ */
+let tempCtx = tempCanvas.getContext("2d");
+
+
+/**
+ * A canvas element where the alternative image will be drawn into
+ */
+let secondCanvas = document.createElement("canvas");
+
+/**
+ * A context element where the alternative image will be drawn into
+ */
+let secondCtx = secondCanvas.getContext("2d");
+
+
+/**
+ * The element that represents which effect will be utilize
+ */
+let currentDisplay = "Gray Scale"
+
+/**
+ * A small timer element that represent the time that each effect has been displayed for
+ */
+let timeDisplayed = 0
+
+/**
+ * A scale element that represent how the image will be scaled in the X axis
+ */
+let proposedScaleX
+
+/**
+ * A scale element that represent how the image will be scaled in the Y axis
+ */
+let proposedScaleY
+
+/**
+ * A offset element that represent the amount of offset on the X axis
+ */
+let offsetX
+
+
+/**
+ * A offset element that represent the amount of offset on the Y axis
+ */
+let offsetY
+
+
+/**
+ * The element that represents the final scale amount
+ */
+let scale
+
+/**
+ * Element that stored the video height
+ */
+let videoHeight
+
+/**
+ * Element that stored the video width
+ */
+let videoWidth
+
+/**
+ * An element that consist of the image data of the previous frame
+ */
+let previousPixel
+
