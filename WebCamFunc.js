@@ -46,7 +46,9 @@ let previousMaxX = 0
 let initial = true
 
 
-
+/**
+ * Main method utilized to loop over the different effects
+ */
 function loop() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
@@ -108,6 +110,10 @@ function loop() {
   }
 }
 
+/**
+ * Method utilize as a main router for which effect to be displayed in the next frame
+ * @param {ImageData} pixels the image data that consist of the current frame that's displayed
+ */
 function switchDisplay(pixels) {
 
   if (currentDisplay == "Gray Scale") {
@@ -182,6 +188,13 @@ function switchDisplay(pixels) {
  }
 }
 
+/**
+ * Method utilized to copy image data into another potentially blank image data object
+ * @param {ImageData.data} srcPixels the source of the image data to be copied
+ * @param {ImageData.data} dstPixels the destination where the copied image data will be stored
+ * @param {int} width the maximum width of pixel to be copied
+ * @param {int} height the maximum height of the pixel to be copied
+ */
 function copyImageData(srcPixels, dstPixels, width, height) {
   var x, y, position;
   for (y = 0; y < height; ++y) {
@@ -196,6 +209,10 @@ function copyImageData(srcPixels, dstPixels, width, height) {
   }
 }
 
+/**
+ * Method utilized to alter the pixel in order to create a spiral effect based on the image data passed in
+ * @param {ImageData} pixels the image data that represents the current frame displayed
+ */
 function displaySpiral(pixels) {
   var x, y, width, height, size, radius, centerX, centerY, sourcePosition, destPosition;
   var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
@@ -255,6 +272,10 @@ function displaySpiral(pixels) {
 }
 
 
+/**
+ * Method utilized to alter the pixel in order to create a wave effect based on the image data passed in
+ * @param {ImageData} pixels the image data that represents the current frame displayed
+ */
 function displayWave(pixels) {
   var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
   var originalPixels = pixels.data
@@ -313,6 +334,10 @@ function displayWave(pixels) {
 
 }
 
+/**
+ * Method utilized to alter the pixel in order to create a upside down effect based on the image data passed in
+ * @param {ImageData} pixels the image data that represents the current frame displayed
+ */
 function displayUpsideDown(pixels) {
   var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
 
@@ -338,6 +363,12 @@ function displayUpsideDown(pixels) {
   window.requestAnimationFrame(loop, canvas);
 }
 
+
+/**
+ * Method utilized to alter the pixel in order to create a pixelate effect based on the image data passed in
+ * @param {ImageData} pixels the image data that represents the current frame displayed
+ * @param {int} scaleFactor the int that represents how much will be max pixels to be scaled
+ */
 function displayPixelate(pixels, scaleFactor) {
   var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
 
@@ -393,6 +424,10 @@ function displayPixelate(pixels, scaleFactor) {
   window.requestAnimationFrame(loop, canvas);
 }
 
+/**
+ * Method utilized to alter the pixel in order to create a grey effect based on the image data passed in
+ * @param {ImageData} pixels the image data that represents the current frame displayed
+ */
 function displayGreyScreen(pixels) {
   for (let y = 0; y < videoHeight; y++) {
     for (let x = 0; x < videoWidth; x++) {
@@ -427,6 +462,10 @@ function displayGreyScreen(pixels) {
   window.requestAnimationFrame(loop, canvas);
 }
 
+/**
+ * Method utilized to alter the pixel in order to create a background effect based on the image data passed in
+ * @param {ImageData} pixels the image data that represents the current frame displayed
+ */
 function backgroundRemoval(pixels) {
   let minX = videoWidth
   let maxX = 0
@@ -490,6 +529,10 @@ function backgroundRemoval(pixels) {
 
 }
 
+/**
+ * Method utilized to alter the pixel in order to create a mirror effect based on the image data passed in
+ * @param {ImageData} pixels the image data that represents the current frame displayed
+ */
 function displayMirror(pixels) {
   var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
   for (let y = 0; y < videoHeight; y++) {
