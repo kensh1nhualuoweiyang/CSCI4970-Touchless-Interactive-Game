@@ -1,58 +1,14 @@
-let video = document.createElement("video");
-video.autoplay = true;
 
-if (navigator.mediaDevices.getUserMedia) {
-  navigator.mediaDevices.getUserMedia({ video: true })
-    .then(function (stream) {
-      video.srcObject = stream;
-    })
-    .catch(function (error) {
-      console.log("Something went wrong! " + error);
-    });
-}
-
-let canvas = document.querySelector("#canvas")
-let ctx = canvas.getContext("2d");
-window.requestAnimationFrame(loop, canvas);
-let track = null;
-let settings = null;
-
-let tempCanvas = document.createElement("canvas");
-let tempCtx = tempCanvas.getContext("2d");
-
-let secondCanvas = document.createElement("canvas");
-let secondCtx = secondCanvas.getContext("2d");
-
-let currentDisplay = "Gray Scale"
-let timeDisplayed = 0
-
-let proposedScaleX = null
-let proposedScaleY = null
-
-let offsetX = null
-let offsetY = null
-
-let scale = null
-
-let videoHeight
-let videoWidth
-
-let previousPixel
-
-let refresh = 0
-
-let previousMinX = Number.MAX_SAFE_INTEGER
-let previousMaxX = 0
-let initial = true
-
-
-function loop() {
+/**
+ * Main method utilized to loop over the different effects
+ */
+ function loop() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
   if (video.srcObject || track) {
     track = video.srcObject.getTracks()[0];
     settings = track.getSettings();
 
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
 
     videoWidth = settings.width;
     videoHeight = settings.height;
@@ -90,19 +46,25 @@ function loop() {
 
     let pixels = tempCtx.getImageData(0, 0, settings.width, settings.height);
     switchDisplay(pixels)
-    if(previousPixel == null || refresh % 10 == 0)
+    if(previousPixel == null){
       previousPixel = tempCtx.getImageData(0, 0, settings.width, settings.height);
-    refresh++
+    }
+     
 
   }
   else {
-    ctx.fillStyle = "magenta"
+    ctx.fillStyle = "black"
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+   
     window.requestAnimationFrame(loop, canvas);
 
   }
 }
 
+/**
+ * Method utilize as a main router for which effect to be displayed in the next frame
+ * @param {ImageData} pixels the image data that consist of the current frame that's displayed
+ */
 function switchDisplay(pixels) {
 
   if (currentDisplay == "Gray Scale") {
@@ -162,13 +124,28 @@ function switchDisplay(pixels) {
     backgroundRemoval(pixels)
      }
      else {
-       currentDisplay = "Gray Scale"
+       currentDisplay = "Mirror"
        timeDisplayed = 0
        window.requestAnimationFrame(loop, canvas);
      }
   }
+  if (currentDisplay == "Mirror") {
+    if (timeDisplayed < 500) {
+   displayMirror(pixels)
+    }
+    else {
+      window.location.href = window.location.href
+    }
+ }
 }
 
+/**
+ * Method utilized to copy image data into another potentially blank image data object
+ * @param {ImageData.data} srcPixels the source of the image data to be copied
+ * @param {ImageData.data} dstPixels the destination where the copied image data will be stored
+ * @param {int} width the maximum width of pixel to be copied
+ * @param {int} height the maximum height of the pixel to be copied
+ */
 function copyImageData(srcPixels, dstPixels, width, height) {
   var x, y, position;
   for (y = 0; y < height; ++y) {
@@ -183,6 +160,10 @@ function copyImageData(srcPixels, dstPixels, width, height) {
   }
 }
 
+/**
+ * Method utilized to alter the pixel in order to create a spiral effect based on the image data passed in
+ * @param {ImageData} pixels the image data that represents the current frame displayed
+ */
 function displaySpiral(pixels) {
   var x, y, width, height, size, radius, centerX, centerY, sourcePosition, destPosition;
   var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
@@ -200,7 +181,6 @@ function displaySpiral(pixels) {
   radius = Math.floor(size / 2);
 
   copyImageData(originalPixels, transformedPixels, width, height);
-  secondCtx.putImageData(transformedImageData, 0, 0)
   for (y = -radius; y < radius; ++y) {
     for (x = -radius; x < radius; ++x) {
 
@@ -243,8 +223,10 @@ function displaySpiral(pixels) {
 }
 
 
-//Mirror
-//Recolor
+/**
+ * Method utilized to alter the pixel in order to create a wave effect based on the image data passed in
+ * @param {ImageData} pixels the image data that represents the current frame displayed
+ */
 function displayWave(pixels) {
   var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
   var originalPixels = pixels.data
@@ -291,6 +273,7 @@ function displayWave(pixels) {
       }
     }
   }
+  previousPixel = tempCtx.getImageData(0, 0, settings.width, settings.height);
   secondCtx.putImageData(transformedImageData, 0, 0);
   timeDisplayed++;
   console.log(timeDisplayed)
@@ -302,6 +285,10 @@ function displayWave(pixels) {
 
 }
 
+/**
+ * Method utilized to alter the pixel in order to create a upside down effect based on the image data passed in
+ * @param {ImageData} pixels the image data that represents the current frame displayed
+ */
 function displayUpsideDown(pixels) {
   var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
 
@@ -327,6 +314,12 @@ function displayUpsideDown(pixels) {
   window.requestAnimationFrame(loop, canvas);
 }
 
+
+/**
+ * Method utilized to alter the pixel in order to create a pixelate effect based on the image data passed in
+ * @param {ImageData} pixels the image data that represents the current frame displayed
+ * @param {int} scaleFactor the int that represents how much will be max pixels to be scaled
+ */
 function displayPixelate(pixels, scaleFactor) {
   var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
 
@@ -382,6 +375,10 @@ function displayPixelate(pixels, scaleFactor) {
   window.requestAnimationFrame(loop, canvas);
 }
 
+/**
+ * Method utilized to alter the pixel in order to create a grey effect based on the image data passed in
+ * @param {ImageData} pixels the image data that represents the current frame displayed
+ */
 function displayGreyScreen(pixels) {
   for (let y = 0; y < videoHeight; y++) {
     for (let x = 0; x < videoWidth; x++) {
@@ -416,6 +413,10 @@ function displayGreyScreen(pixels) {
   window.requestAnimationFrame(loop, canvas);
 }
 
+/**
+ * Method utilized to alter the pixel in order to create a background effect based on the image data passed in
+ * @param {ImageData} pixels the image data that represents the current frame displayed
+ */
 function backgroundRemoval(pixels) {
   let minX = videoWidth
   let maxX = 0
@@ -468,7 +469,6 @@ function backgroundRemoval(pixels) {
 
   secondCtx.putImageData(pixels, 0, 0);
   timeDisplayed++;
-  refresh++
   
   console.log(timeDisplayed)
 
@@ -478,3 +478,151 @@ function backgroundRemoval(pixels) {
   window.requestAnimationFrame(loop, canvas);
 
 }
+
+/**
+ * Method utilized to alter the pixel in order to create a mirror effect based on the image data passed in
+ * @param {ImageData} pixels the image data that represents the current frame displayed
+ */
+function displayMirror(pixels) {
+  var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
+  for (let y = 0; y < videoHeight; y++) {
+    for (let x = 0; x < videoWidth / 2; x++) {
+      let pixelIndex = videoWidth * 4 * y + x * 4;
+      let targetPixelIndex = videoWidth * 4 * y + (videoWidth - x - 1) * 4;
+
+      transformedImageData.data[pixelIndex] = pixels.data[pixelIndex];
+      transformedImageData.data[pixelIndex + 1] = pixels.data[pixelIndex + 1];
+      transformedImageData.data[pixelIndex + 2] = pixels.data[pixelIndex + 2];
+      transformedImageData.data[pixelIndex + 3] = pixels.data[pixelIndex + 3];
+      
+      transformedImageData.data[targetPixelIndex] = pixels.data[pixelIndex];
+      transformedImageData.data[targetPixelIndex + 1] = pixels.data[pixelIndex + 1];
+      transformedImageData.data[targetPixelIndex + 2] = pixels.data[pixelIndex + 2];
+      transformedImageData.data[targetPixelIndex + 3] = pixels.data[pixelIndex + 3];
+    }
+  }
+
+  secondCtx.putImageData(transformedImageData, 0, 0);
+  timeDisplayed++;
+  console.log(timeDisplayed)
+
+  ctx.drawImage(secondCanvas, 0, 0, videoWidth, videoHeight,
+    offsetX, offsetY, scale * videoWidth, scale * videoHeight);
+
+  window.requestAnimationFrame(loop, canvas);
+}
+
+/**
+ * The video element that serves the purpose of receving the input through webcam
+ **/
+let video = document.createElement("video");
+video.autoplay = true;
+
+
+if (navigator.mediaDevices.getUserMedia) {
+  navigator.mediaDevices.getUserMedia({ video: true })
+    .then(function (stream) {
+      video.srcObject = stream;
+    })
+    .catch(function (error) {
+      console.log("Something went wrong! " + error);
+    });
+}
+
+/**
+ * The canvas element that serves the purpose of controlling the canvas declared within the html
+ **/
+let canvas = document.querySelector("#canvas")
+
+/**
+ * The contex element that serves the purpose of controlling the canvas declared within the html
+ **/
+let ctx = canvas.getContext("2d");
+
+
+window.requestAnimationFrame(loop, canvas);
+
+/**
+ * Track element that represent the video source from the video element
+ */
+let track = null;
+
+/**
+ * The settings that's contain within the video element
+ */
+let settings = null;
+
+/**
+ * A temporary canvas where the each unalternative frame will be store and drawn
+ */
+let tempCanvas = document.createElement("canvas");
+
+/**
+ * A temporary context that belongs to the temporary canvas
+ */
+let tempCtx = tempCanvas.getContext("2d");
+
+
+/**
+ * A canvas element where the alternative image will be drawn into
+ */
+let secondCanvas = document.createElement("canvas");
+
+/**
+ * A context element where the alternative image will be drawn into
+ */
+let secondCtx = secondCanvas.getContext("2d");
+
+
+/**
+ * The element that represents which effect will be utilize
+ */
+let currentDisplay = "Gray Scale"
+
+/**
+ * A small timer element that represent the time that each effect has been displayed for
+ */
+let timeDisplayed = 0
+
+/**
+ * A scale element that represent how the image will be scaled in the X axis
+ */
+let proposedScaleX
+
+/**
+ * A scale element that represent how the image will be scaled in the Y axis
+ */
+let proposedScaleY
+
+/**
+ * A offset element that represent the amount of offset on the X axis
+ */
+let offsetX
+
+
+/**
+ * A offset element that represent the amount of offset on the Y axis
+ */
+let offsetY
+
+
+/**
+ * The element that represents the final scale amount
+ */
+let scale
+
+/**
+ * Element that stored the video height
+ */
+let videoHeight
+
+/**
+ * Element that stored the video width
+ */
+let videoWidth
+
+/**
+ * An element that consist of the image data of the previous frame
+ */
+let previousPixel
+
