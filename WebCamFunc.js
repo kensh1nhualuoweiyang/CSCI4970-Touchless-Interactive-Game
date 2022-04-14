@@ -124,11 +124,29 @@ function switchDisplay(pixels) {
     backgroundRemoval(pixels)
      }
      else {
-       currentDisplay = "Mirror"
+       currentDisplay = "HueChange"
        timeDisplayed = 0
        window.requestAnimationFrame(loop, canvas);
      }
   }
+  if (currentDisplay == "HueChange") {
+    if (timeDisplayed < 5000) {
+      changeHue(pixels, hueValue)
+      if (hueValue == 360)
+      {
+        hueValue = 1;
+      }
+      else
+      {
+        hueValue++;
+      }
+    }
+    else {
+      currentDisplay = "Mirror"
+      timeDisplayed = 0
+      window.requestAnimationFrame(loop, canvas);
+    }
+ }
   if (currentDisplay == "Mirror") {
     if (timeDisplayed < 500) {
    displayMirror(pixels)
@@ -512,6 +530,42 @@ function displayMirror(pixels) {
   window.requestAnimationFrame(loop, canvas);
 }
 
+function changeHue(pixels, hue)
+{
+  for (let y = 0; y < videoHeight; y++) {
+    for (let x = 0; x < videoWidth; x++) {
+      let pixelIndex = videoWidth * 4 * y + x * 4;
+
+      let r = pixels.data[pixelIndex];
+      let g = pixels.data[pixelIndex + 1];
+      let b = pixels.data[pixelIndex + 2];
+
+      let u = Math.cos(hue * Math.PI / 180);
+      let w = Math.sin(hue * Math.PI / 180);
+
+      let newR = (0.299 + 0.701 * u + 0.168 * w) * r + (0.587 - 0.587 * u + 0.330 * w) * g + (0.114 - 0.114 * u - 0.497 * w) * b;
+      
+      let newG = (0.299 - 0.299 * u - 0.328 * w) * r + (0.587 + 0.413 * u + 0.035 * w) * g + (0.114 - 0.114 * u + 0.292 * w) * b;
+
+      let newB = (0.299 - 0.3 * u + 1.25 * w) * r + (0.587 - 0.588 * u - 1.05 * w) * g + (0.114 + 0.886 * u - 0.203 * w) * b;
+
+      //Update the pixel data
+      pixels.data[pixelIndex] = newR;
+      pixels.data[pixelIndex + 1] = newG;
+      pixels.data[pixelIndex + 2] = newB;
+
+    }
+  }
+  secondCtx.putImageData(pixels, 0, 0);
+  timeDisplayed++;
+  console.log(timeDisplayed)
+
+  ctx.drawImage(secondCanvas, 0, 0, videoWidth, videoHeight,
+    offsetX, offsetY, scale * videoWidth, scale * videoHeight);
+
+  window.requestAnimationFrame(loop, canvas);
+}
+
 /**
  * The video element that serves the purpose of receving the input through webcam
  **/
@@ -528,6 +582,8 @@ if (navigator.mediaDevices.getUserMedia) {
       console.log("Something went wrong! " + error);
     });
 }
+
+let hueValue = 1;
 
 /**
  * The canvas element that serves the purpose of controlling the canvas declared within the html
