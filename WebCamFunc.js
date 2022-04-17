@@ -45,11 +45,21 @@
     tempCtx.drawImage(video, 0, 0, settings.width, settings.height);
 
     let pixels = tempCtx.getImageData(0, 0, settings.width, settings.height);
-    switchDisplay(pixels)
+    result =switchDisplay(pixels)
     if(previousPixel == null){
       previousPixel = tempCtx.getImageData(0, 0, settings.width, settings.height);
     }
-     
+    
+    secondCtx.putImageData(result, 0, 0)
+
+
+    timeDisplayed++;
+    console.log(timeDisplayed)
+  
+    ctx.drawImage(secondCanvas, 0, 0, videoWidth, videoHeight,
+      offsetX, offsetY, scale * videoWidth, scale * videoHeight);
+  
+    window.requestAnimationFrame(loop, canvas);
 
   }
   else {
@@ -67,9 +77,10 @@
  */
 function switchDisplay(pixels) {
 
+  let tempResult
   if (currentDisplay == "Gray Scale") {
-    if (timeDisplayed < 500) {
-      displayGreyScreen(pixels)
+    if (timeDisplayed < 1000) {
+      tempResult = displayGreyScreen(pixels)
     }
     else {
       currentDisplay = "Spiral"
@@ -79,7 +90,7 @@ function switchDisplay(pixels) {
 
   if (currentDisplay == "Spiral") {
     if (timeDisplayed < 500) {
-      displaySpiral(pixels)
+      tempResult =displaySpiral(pixels)
     }
     else {
       currentDisplay = "Pixelate"
@@ -89,8 +100,8 @@ function switchDisplay(pixels) {
   }
 
   if (currentDisplay == "Pixelate") {
-    if (timeDisplayed < 500) {
-      displayPixelate(pixels, 10)
+    if (timeDisplayed < 1500) {
+      tempResult =displayPixelate(pixels, 10)
     }
     else {
       currentDisplay = "UpsideDown"
@@ -100,8 +111,8 @@ function switchDisplay(pixels) {
   }
 
   if (currentDisplay == "UpsideDown") {
-    if (timeDisplayed < 500) {
-      displayUpsideDown(pixels)
+    if (timeDisplayed < 1500) {
+      tempResult =displayUpsideDown(pixels)
     }
     else {
       currentDisplay = "Wave"
@@ -110,8 +121,8 @@ function switchDisplay(pixels) {
     }
   }
   if (currentDisplay == "Wave") {
-    if (timeDisplayed < 500) {
-      displayWave(pixels)
+    if (timeDisplayed < 1500) {
+      tempResult =displayWave(pixels)
     }
     else {
       currentDisplay = "BackgroundRemoval"
@@ -120,8 +131,8 @@ function switchDisplay(pixels) {
     }
   }
   if (currentDisplay == "BackgroundRemoval") {
-     if (timeDisplayed < 500) {
-    backgroundRemoval(pixels)
+     if (timeDisplayed < 1000) {
+      tempResult =backgroundRemoval(pixels)
      }
      else {
        currentDisplay = "HueChange"
@@ -130,8 +141,8 @@ function switchDisplay(pixels) {
      }
   }
   if (currentDisplay == "HueChange") {
-    if (timeDisplayed < 5000) {
-      changeHue(pixels, hueValue)
+    if (timeDisplayed < 1000) {
+      tempResult =changeHue(pixels, hueValue)
       if (hueValue == 360)
       {
         hueValue = 1;
@@ -148,13 +159,15 @@ function switchDisplay(pixels) {
     }
  }
   if (currentDisplay == "Mirror") {
-    if (timeDisplayed < 500) {
-   displayMirror(pixels)
+    if (timeDisplayed < 1000) {
+      tempResult =displayMirror(pixels)
     }
     else {
       window.location.href = window.location.href
     }
  }
+
+ return tempResult
 }
 
 /**
@@ -228,16 +241,7 @@ function displaySpiral(pixels) {
       }
     }
   }
-  secondCtx.putImageData(transformedImageData, 0, 0)
-
-
-  timeDisplayed++;
-  console.log(timeDisplayed)
-
-  ctx.drawImage(secondCanvas, 0, 0, videoWidth, videoHeight,
-    offsetX, offsetY, scale * videoWidth, scale * videoHeight);
-
-  window.requestAnimationFrame(loop, canvas);
+  return transformedImageData
 }
 
 
@@ -292,14 +296,7 @@ function displayWave(pixels) {
     }
   }
   previousPixel = tempCtx.getImageData(0, 0, settings.width, settings.height);
-  secondCtx.putImageData(transformedImageData, 0, 0);
-  timeDisplayed++;
-  console.log(timeDisplayed)
-
-  ctx.drawImage(secondCanvas, 0, 0, videoWidth, videoHeight,
-    offsetX, offsetY, scale * videoWidth, scale * videoHeight);
-
-  window.requestAnimationFrame(loop, canvas);
+  return transformedImageData
 
 }
 
@@ -322,14 +319,8 @@ function displayUpsideDown(pixels) {
     }
   }
 
-  secondCtx.putImageData(transformedImageData, 0, 0);
-  timeDisplayed++;
-  console.log(timeDisplayed)
+  return transformedImageData
 
-  ctx.drawImage(secondCanvas, 0, 0, videoWidth, videoHeight,
-    offsetX, offsetY, scale * videoWidth, scale * videoHeight);
-
-  window.requestAnimationFrame(loop, canvas);
 }
 
 
@@ -383,14 +374,8 @@ function displayPixelate(pixels, scaleFactor) {
     }
   }
 
-  secondCtx.putImageData(transformedImageData, 0, 0);
-  timeDisplayed++;
-  console.log(timeDisplayed)
+  return transformedImageData
 
-  ctx.drawImage(secondCanvas, 0, 0, videoWidth, videoHeight,
-    offsetX, offsetY, scale * videoWidth, scale * videoHeight);
-
-  window.requestAnimationFrame(loop, canvas);
 }
 
 /**
@@ -421,14 +406,8 @@ function displayGreyScreen(pixels) {
 
     }
   }
-  secondCtx.putImageData(pixels, 0, 0);
-  timeDisplayed++;
-  console.log(timeDisplayed)
+  return pixels
 
-  ctx.drawImage(secondCanvas, 0, 0, videoWidth, videoHeight,
-    offsetX, offsetY, scale * videoWidth, scale * videoHeight);
-
-  window.requestAnimationFrame(loop, canvas);
 }
 
 /**
@@ -485,15 +464,8 @@ function backgroundRemoval(pixels) {
   }
 
 
-  secondCtx.putImageData(pixels, 0, 0);
-  timeDisplayed++;
-  
-  console.log(timeDisplayed)
+  return pixels
 
-  ctx.drawImage(secondCanvas, 0, 0, videoWidth, videoHeight,
-    offsetX, offsetY, scale * videoWidth, scale * videoHeight);
-
-  window.requestAnimationFrame(loop, canvas);
 
 }
 
@@ -520,14 +492,8 @@ function displayMirror(pixels) {
     }
   }
 
-  secondCtx.putImageData(transformedImageData, 0, 0);
-  timeDisplayed++;
-  console.log(timeDisplayed)
+  return transformedImageData
 
-  ctx.drawImage(secondCanvas, 0, 0, videoWidth, videoHeight,
-    offsetX, offsetY, scale * videoWidth, scale * videoHeight);
-
-  window.requestAnimationFrame(loop, canvas);
 }
 
 function changeHue(pixels, hue)
@@ -682,3 +648,7 @@ let videoWidth
  */
 let previousPixel
 
+/**
+ * A variable to store the current modified pixel to be displayed onto the canvas
+ */
+let result
