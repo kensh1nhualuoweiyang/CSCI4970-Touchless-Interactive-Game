@@ -485,11 +485,7 @@ function backgroundRemoval(pixels) {
     }
 
   }
-
-
   return pixels
-
-
 }
 
 /**
@@ -518,7 +514,11 @@ function displayMirror(pixels) {
   return transformedImageData
 
 }
-
+/**
+ * Method that alters the color hue of the given image
+ * @param {ImageData} pixels the image data that represents the current frame displayed
+ * @param {int} hue the amount (in degrees) to change the hue
+ */
 function changeHue(pixels, hue)
 {
   for (let y = 0; y < videoHeight; y++) {
@@ -572,6 +572,9 @@ if (navigator.mediaDevices.getUserMedia) {
     });
 }
 
+/**
+ * Global variable to keep track of the current hue change value. This variable is used to produce the rainbow effect.
+ */
 let hueValue = 1;
 
 /**
