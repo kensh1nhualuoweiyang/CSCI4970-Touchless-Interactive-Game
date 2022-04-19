@@ -9,6 +9,7 @@
     track = video.srcObject.getTracks()[0];
     settings = track.getSettings();
 
+    
 
     videoWidth = settings.width;
     videoHeight = settings.height;
@@ -50,14 +51,23 @@
       previousPixel = tempCtx.getImageData(0, 0, settings.width, settings.height);
     }
     
-    secondCtx.putImageData(result, 0, 0)
 
+
+    secondCtx.putImageData(result, 0, 0);
+    var img = new Image();
+    img.src="money.jpg";
+    tempCtx.drawImage(img,0,0,videoWidth,videoHeight);
+    tempImageData = tempCtx.getImageData(0,0,videoWidth,videoHeight);
 
     timeDisplayed++;
-    console.log(timeDisplayed)
+    console.log(timeDisplayed);
+    
+
+    
   
     ctx.drawImage(secondCanvas, 0, 0, videoWidth, videoHeight,
       offsetX, offsetY, scale * videoWidth, scale * videoHeight);
+     
   
     window.requestAnimationFrame(loop, canvas);
 
@@ -79,7 +89,7 @@ function switchDisplay(pixels) {
 
   let tempResult
   if (currentDisplay == "Gray Scale") {
-    if (timeDisplayed < 1000) {
+    if (timeDisplayed < 50) {
       tempResult = displayGreyScreen(pixels)
     }
     else {
@@ -89,7 +99,7 @@ function switchDisplay(pixels) {
   }
 
   if (currentDisplay == "Spiral") {
-    if (timeDisplayed < 500) {
+    if (timeDisplayed < 50) {
       tempResult =displaySpiral(pixels)
     }
     else {
@@ -100,7 +110,7 @@ function switchDisplay(pixels) {
   }
 
   if (currentDisplay == "Pixelate") {
-    if (timeDisplayed < 1500) {
+    if (timeDisplayed < 50) {
       tempResult =displayPixelate(pixels, 10)
     }
     else {
@@ -111,7 +121,7 @@ function switchDisplay(pixels) {
   }
 
   if (currentDisplay == "UpsideDown") {
-    if (timeDisplayed < 1500) {
+    if (timeDisplayed < 50) {
       tempResult =displayUpsideDown(pixels)
     }
     else {
@@ -121,7 +131,7 @@ function switchDisplay(pixels) {
     }
   }
   if (currentDisplay == "Wave") {
-    if (timeDisplayed < 1500) {
+    if (timeDisplayed < 50) {
       tempResult =displayWave(pixels)
     }
     else {
@@ -451,13 +461,26 @@ function backgroundRemoval(pixels) {
    
 
     //If X is out side of the zone, change the rgb pixel to black
-    for (let x = 0; x < videoWidth; x++) {
+
+    /*for (let x = 0; x < videoWidth; x++) {
       let pixelIndex = videoWidth * 4 * y + x * 4;
       if (x <= minX || x >= maxX) {
         pixels.data[pixelIndex] = 0
         pixels.data[pixelIndex + 1] = 0
         pixels.data[pixelIndex + 2] = 0
         pixels.data[pixelIndex + 3] = 0
+      }
+    }*/
+    
+    
+
+    for (let x = 0; x < videoWidth; x++) {
+      let pixelIndex = videoWidth * 4 * y + x * 4;
+      if (x <= minX || x >= maxX) {
+        pixels.data[pixelIndex] = tempImageData.data[pixelIndex]
+        pixels.data[pixelIndex + 1] = tempImageData.data[pixelIndex + 1]
+        pixels.data[pixelIndex + 2] = tempImageData.data[pixelIndex + 2]
+        pixels.data[pixelIndex + 3] = tempImageData.data[pixelIndex + 3]
       }
     }
 
@@ -652,3 +675,5 @@ let previousPixel
  * A variable to store the current modified pixel to be displayed onto the canvas
  */
 let result
+
+let tempImageData
