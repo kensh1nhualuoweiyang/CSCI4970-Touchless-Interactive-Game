@@ -89,7 +89,7 @@ function switchDisplay(pixels) {
 
   let tempResult
   if (currentDisplay == "Gray Scale") {
-    if (timeDisplayed < 50) {
+    if (timeDisplayed < 500) {
       tempResult = displayGreyScreen(pixels)
     }
     else {
@@ -99,7 +99,7 @@ function switchDisplay(pixels) {
   }
 
   if (currentDisplay == "Spiral") {
-    if (timeDisplayed < 50) {
+    if (timeDisplayed < 500) {
       tempResult =displaySpiral(pixels)
     }
     else {
@@ -110,7 +110,7 @@ function switchDisplay(pixels) {
   }
 
   if (currentDisplay == "Pixelate") {
-    if (timeDisplayed < 50) {
+    if (timeDisplayed < 500) {
       tempResult =displayPixelate(pixels, 10)
     }
     else {
@@ -121,7 +121,7 @@ function switchDisplay(pixels) {
   }
 
   if (currentDisplay == "UpsideDown") {
-    if (timeDisplayed < 50) {
+    if (timeDisplayed < 500) {
       tempResult =displayUpsideDown(pixels)
     }
     else {
@@ -131,7 +131,7 @@ function switchDisplay(pixels) {
     }
   }
   if (currentDisplay == "Wave") {
-    if (timeDisplayed < 50) {
+    if (timeDisplayed < 500) {
       tempResult =displayWave(pixels)
     }
     else {
