@@ -89,7 +89,7 @@ function switchDisplay(pixels) {
 
   let tempResult
   if (currentDisplay == "Gray Scale") {
-    if (timeDisplayed < 50) {
+    if (timeDisplayed < 500) {
       tempResult = displayGreyScreen(pixels)
     }
     else {
@@ -99,7 +99,7 @@ function switchDisplay(pixels) {
   }
 
   if (currentDisplay == "Spiral") {
-    if (timeDisplayed < 50) {
+    if (timeDisplayed < 500) {
       tempResult =displaySpiral(pixels)
     }
     else {
@@ -110,7 +110,7 @@ function switchDisplay(pixels) {
   }
 
   if (currentDisplay == "Pixelate") {
-    if (timeDisplayed < 50) {
+    if (timeDisplayed < 500) {
       tempResult =displayPixelate(pixels, 10)
     }
     else {
@@ -121,7 +121,7 @@ function switchDisplay(pixels) {
   }
 
   if (currentDisplay == "UpsideDown") {
-    if (timeDisplayed < 50) {
+    if (timeDisplayed < 500) {
       tempResult =displayUpsideDown(pixels)
     }
     else {
@@ -131,7 +131,7 @@ function switchDisplay(pixels) {
     }
   }
   if (currentDisplay == "Wave") {
-    if (timeDisplayed < 50) {
+    if (timeDisplayed < 500) {
       tempResult =displayWave(pixels)
     }
     else {
@@ -141,7 +141,7 @@ function switchDisplay(pixels) {
     }
   }
   if (currentDisplay == "BackgroundRemoval") {
-     if (timeDisplayed < 1000) {
+     if (timeDisplayed < 2000) {
       tempResult =backgroundRemoval(pixels)
      }
      else {
@@ -151,7 +151,7 @@ function switchDisplay(pixels) {
      }
   }
   if (currentDisplay == "HueChange") {
-    if (timeDisplayed < 1000) {
+    if (timeDisplayed < 2000) {
       tempResult =changeHue(pixels, hueValue)
       if (hueValue == 360)
       {
@@ -169,7 +169,7 @@ function switchDisplay(pixels) {
     }
  }
   if (currentDisplay == "Mirror") {
-    if (timeDisplayed < 1000) {
+    if (timeDisplayed < 2000) {
       tempResult =displayMirror(pixels)
     }
     else {
