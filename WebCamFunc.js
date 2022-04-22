@@ -54,8 +54,7 @@
 
 
     secondCtx.putImageData(result, 0, 0);
-    var img = new Image();
-    img.src="money.jpg";
+    
     tempCtx.drawImage(img,0,0,videoWidth,videoHeight);
     tempImageData = tempCtx.getImageData(0,0,videoWidth,videoHeight);
 
@@ -680,3 +679,6 @@ let previousPixel
 let result
 
 let tempImageData
+
+var img = new Image();
+img.src="money.jpg";
