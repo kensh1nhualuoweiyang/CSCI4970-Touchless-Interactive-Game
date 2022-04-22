@@ -140,7 +140,7 @@ function switchDisplay(pixels) {
     }
   }
   if (currentDisplay == "BackgroundRemoval") {
-     if (timeDisplayed < 1000) {
+     if (timeDisplayed < 2000) {
       tempResult =backgroundRemoval(pixels)
      }
      else {
@@ -150,7 +150,7 @@ function switchDisplay(pixels) {
      }
   }
   if (currentDisplay == "HueChange") {
-    if (timeDisplayed < 1000) {
+    if (timeDisplayed < 2000) {
       tempResult =changeHue(pixels, hueValue)
       if (hueValue == 360)
       {
@@ -168,7 +168,7 @@ function switchDisplay(pixels) {
     }
  }
   if (currentDisplay == "Mirror") {
-    if (timeDisplayed < 1000) {
+    if (timeDisplayed < 2000) {
       tempResult =displayMirror(pixels)
     }
     else {
