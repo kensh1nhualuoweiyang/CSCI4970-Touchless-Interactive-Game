@@ -97,6 +97,7 @@ function switchDisplay(pixels) {
     }
   }
 
+
   if (currentDisplay == "Spiral") {
     if (timeDisplayed < 500) {
       tempResult =displaySpiral(pixels)
@@ -150,23 +151,63 @@ function switchDisplay(pixels) {
      }
   }
   if (currentDisplay == "HueChange") {
-    if (timeDisplayed < 2000) {
-      tempResult =changeHue(pixels, hueValue)
-      if (hueValue == 360)
-      {
-        hueValue = 1;
+      if (timeDisplayed < 2000) {
+        tempResult =changeHue(pixels, hueValue)
+        if (hueValue == 360)
+        {
+          hueValue = 1;
+        }
+        else
+        {
+          hueValue++;
+        }
       }
-      else
-      {
-        hueValue++;
+      else {
+        currentDisplay = "PixelatedHue"
+        timeDisplayed = 0
+        window.requestAnimationFrame(loop, canvas);
       }
+  }
+  if (currentDisplay == "PixelatedHue") {
+    if (timeDisplayed < 500) {
+      tempResult = pixelatedHue(pixels,10,hueValue)
+    }
+    else {
+      currentDisplay = "Continous Pixlation"
+      timeDisplayed = 0
+    }
+  }
+  if (currentDisplay == "Continous Pixlation") {
+    if (timeDisplayed < 5000) {
+      if(pixlation >= 50)
+        shrink = true
+      else if(pixlation <= 1){
+        if(pixlation < 1)
+          pixlation = 1
+        shrink = false
+      }
+        
+      tempResult = displayPixelate(pixels,pixlation)
+      if(!shrink && frameCounter == 7){
+        pixlation+=1
+        frameCounter = 0
+      }
+      else if( !shrink && frameCounter < 7)
+        frameCounter++
+      else if(shrink && frameCounter == 7){
+        pixlation-=1
+        frameCounter = 0
+      }
+      else{
+        frameCounter++
+      }
+
     }
     else {
       currentDisplay = "Mirror"
       timeDisplayed = 0
-      window.requestAnimationFrame(loop, canvas);
     }
- }
+  }
   if (currentDisplay == "Mirror") {
     if (timeDisplayed < 2000) {
       tempResult =displayMirror(pixels)
@@ -513,6 +554,30 @@ function displayMirror(pixels) {
   return transformedImageData
 
 }
+
+
+
+/**
+ * Method that alters the color hue of the given image with pixlation and hue alternation
+ * @param {ImageData} pixels the image data that represents the current frame displayed
+ * @param {int} scaleFactor the int that represents how much will be max pixels to be scaled
+ * @param {int} hue the amount (in degrees) to change the hue
+ */
+function pixelatedHue(pixels,scaleFactor,hue){
+  let pixelatedImage = displayPixelate(pixels,scaleFactor)
+  if (hueValue == 360)
+  {
+    hueValue = 1;
+  }
+  else
+  {
+    hueValue++;
+  }
+  return changeHue(pixelatedImage,hue);
+}
+
+
+
 /**
  * Method that alters the color hue of the given image
  * @param {ImageData} pixels the image data that represents the current frame displayed
@@ -679,6 +744,12 @@ let previousPixel
 let result
 
 let tempImageData
+
+let shrink
+
+let frameCounter = 0;
+
+let pixlation = 1;
 
 var img = new Image();
 img.src="money.jpg";
