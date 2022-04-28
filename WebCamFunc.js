@@ -89,7 +89,17 @@ function switchDisplay(pixels) {
   let tempResult
   if (currentDisplay == "Gray Scale") {
     if (timeDisplayed < 500) {
-      tempResult = displayGreyScreen(pixels)
+      tempResult = displayGreyScreen(pixels);
+    }
+    else {
+      currentDisplay = "4 Images"
+      timeDisplayed = 0
+    }
+  }
+
+  if (currentDisplay == "4 Images") {
+    if (timeDisplayed < 500) {
+      tempResult = display4images(pixels);
     }
     else {
       currentDisplay = "Spiral"
@@ -100,7 +110,7 @@ function switchDisplay(pixels) {
 
   if (currentDisplay == "Spiral") {
     if (timeDisplayed < 500) {
-      tempResult =displaySpiral(pixels)
+      tempResult =displaySpiral(pixels);
     }
     else {
       currentDisplay = "Pixelate"
@@ -578,6 +588,49 @@ function pixelatedHue(pixels,scaleFactor,hue){
 
 
 
+function display4images(pixels) {
+  var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
+  for (let y = 0; y < videoHeight / 2  ; y ++ ) {
+    for (let x = 0; x < videoWidth / 2  ; x ++ ) {
+      let pixelIndex = (videoWidth * y + x)* 4; //pixel index
+      let originIndex = pixelIndex * 2
+      let originIndex2 = originIndex + videoWidth * 4
+
+      let rAvg = (pixels.data[originIndex] + pixels.data[originIndex + 4] + pixels.data[originIndex2] + pixels.data[originIndex2 + 4])/4
+      let gAvg =( pixels.data[originIndex + 1] + pixels.data[originIndex + 5] + pixels.data[originIndex2 + 1] + pixels.data[originIndex2 + 5])/4
+      let bAvg = (pixels.data[originIndex + 2] + pixels.data[originIndex + 6] + pixels.data[originIndex2 + 2] + pixels.data[originIndex2 + 6])/4
+      let aAvg = (pixels.data[originIndex + 3] + pixels.data[originIndex + 7] + pixels.data[originIndex2 + 3] + pixels.data[originIndex2 + 7])/4
+
+
+
+      transformedImageData.data[pixelIndex] = rAvg;
+      transformedImageData.data[pixelIndex + 1] = gAvg;
+      transformedImageData.data[pixelIndex + 2] = bAvg;
+      transformedImageData.data[pixelIndex + 3] = aAvg;
+
+      let picture2Index = pixelIndex + 2 * videoWidth;
+      transformedImageData.data[picture2Index] = 0;
+      transformedImageData.data[picture2Index + 1] = gAvg;
+      transformedImageData.data[picture2Index + 2] = bAvg;
+      transformedImageData.data[picture2Index + 3] = aAvg;
+
+      let picture3Index = pixelIndex + 2* videoWidth * videoHeight;
+      transformedImageData.data[picture3Index] = rAvg;
+      transformedImageData.data[picture3Index + 1] = 0;
+      transformedImageData.data[picture3Index + 2] = bAvg;
+      transformedImageData.data[picture3Index + 3] = aAvg;
+
+      let picture4Index = pixelIndex + 2* videoWidth *videoHeight + 2 * videoWidth;
+      transformedImageData.data[picture4Index] = rAvg;
+      transformedImageData.data[picture4Index + 1] = gAvg;
+      transformedImageData.data[picture4Index + 2] = 0;
+      transformedImageData.data[picture4Index + 3] = aAvg;
+    }
+  }
+
+  return transformedImageData
+
+}
 /**
  * Method that alters the color hue of the given image
  * @param {ImageData} pixels the image data that represents the current frame displayed
