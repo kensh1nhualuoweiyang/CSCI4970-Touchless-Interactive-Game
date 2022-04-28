@@ -9,8 +9,6 @@
     track = video.srcObject.getTracks()[0];
     settings = track.getSettings();
 
-    
-
     videoWidth = settings.width;
     videoHeight = settings.height;
 
@@ -83,6 +81,7 @@
 /**
  * Method utilize as a main router for which effect to be displayed in the next frame
  * @param {ImageData} pixels the image data that consist of the current frame that's displayed
+ * @returns a image data that consisted of the altered image data
  */
 function switchDisplay(pixels) {
 
@@ -92,12 +91,10 @@ function switchDisplay(pixels) {
       tempResult = displayGreyScreen(pixels)
     }
     else {
-      currentDisplay = "Spiral"
+      currentDisplay = "ContinousPixelationWithMirror"
       timeDisplayed = 0
     }
   }
-
-
   if (currentDisplay == "Spiral") {
     if (timeDisplayed < 500) {
       tempResult =displaySpiral(pixels)
@@ -179,29 +176,52 @@ function switchDisplay(pixels) {
   }
   if (currentDisplay == "Continous Pixlation") {
     if (timeDisplayed < 5000) {
-      if(pixlation >= 50)
-        shrink = true
-      else if(pixlation <= 1){
-        if(pixlation < 1)
-          pixlation = 1
-        shrink = false
-      }
-        
-      tempResult = displayPixelate(pixels,pixlation)
-      if(!shrink && frameCounter == 7){
-        pixlation+=1
-        frameCounter = 0
-      }
-      else if( !shrink && frameCounter < 7)
-        frameCounter++
-      else if(shrink && frameCounter == 7){
-        pixlation-=1
-        frameCounter = 0
-      }
-      else{
-        frameCounter++
-      }
-
+      tempResult = countinousPixelation(pixels,tempResult)
+    }
+    else {
+      currentDisplay = "PixelatedWave"
+      timeDisplayed = 0
+    }
+  }
+  if (currentDisplay == "PixelatedWave") {
+    if (timeDisplayed < 500) {
+      tempResult = pixelatedWave(pixels,15)
+    }
+    else {
+      currentDisplay = "BackgroundRemovalMirrorWithSpiral"
+      timeDisplayed = 0
+    }
+  }
+  if (currentDisplay == "BackgroundRemovalMirrorWithSpiral") {
+    if (timeDisplayed < 500) {
+      tempResult = backgroundRemovalMirrorWithSpiral(pixels)
+    }
+    else {
+      currentDisplay = "PixelatedSpiral"
+      timeDisplayed = 0
+    }
+  }
+  if (currentDisplay == "PixelatedSpiral") {
+    if (timeDisplayed < 500) {
+      tempResult = pixelatedSpiralWithMirror(pixels,10)
+    }
+    else {
+      currentDisplay = "ContinousPixelationWithMirror"
+      timeDisplayed = 0
+    }
+  }
+  if (currentDisplay == "ContinousPixelationWithMirror") {
+    if (timeDisplayed < 500) {
+      tempResult = mirrorContinousPixelation(pixels,tempResult)
+    }
+    else {
+      currentDisplay = "MirrorWave"
+      timeDisplayed = 0
+    }
+  }
+  if (currentDisplay == "MirrorWave") {
+    if (timeDisplayed < 500) {
+      tempResult = mirrorWave(pixels)
     }
     else {
       currentDisplay = "Mirror"
@@ -215,7 +235,8 @@ function switchDisplay(pixels) {
     else {
       window.location.href = window.location.href
     }
- }
+  }
+
 
  return tempResult
 }
@@ -244,6 +265,7 @@ function copyImageData(srcPixels, dstPixels, width, height) {
 /**
  * Method utilized to alter the pixel in order to create a spiral effect based on the image data passed in
  * @param {ImageData} pixels the image data that represents the current frame displayed
+ * @returns a image data that consisted of the altered image data
  */
 function displaySpiral(pixels) {
   var x, y, width, height, size, radius, centerX, centerY, sourcePosition, destPosition;
@@ -298,6 +320,7 @@ function displaySpiral(pixels) {
 /**
  * Method utilized to alter the pixel in order to create a wave effect based on the image data passed in
  * @param {ImageData} pixels the image data that represents the current frame displayed
+ * @returns a image data that consisted of the altered image data
  */
 function displayWave(pixels) {
   var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
@@ -353,6 +376,7 @@ function displayWave(pixels) {
 /**
  * Method utilized to alter the pixel in order to create a upside down effect based on the image data passed in
  * @param {ImageData} pixels the image data that represents the current frame displayed
+ * @returns a image data that consisted of the altered image data
  */
 function displayUpsideDown(pixels) {
   var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
@@ -378,6 +402,7 @@ function displayUpsideDown(pixels) {
  * Method utilized to alter the pixel in order to create a pixelate effect based on the image data passed in
  * @param {ImageData} pixels the image data that represents the current frame displayed
  * @param {int} scaleFactor the int that represents how much will be max pixels to be scaled
+ * @returns a image data that consisted of the altered image data
  */
 function displayPixelate(pixels, scaleFactor) {
   var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
@@ -431,6 +456,7 @@ function displayPixelate(pixels, scaleFactor) {
 /**
  * Method utilized to alter the pixel in order to create a grey effect based on the image data passed in
  * @param {ImageData} pixels the image data that represents the current frame displayed
+ * @returns a image data that consisted of the altered image data
  */
 function displayGreyScreen(pixels) {
   for (let y = 0; y < videoHeight; y++) {
@@ -463,6 +489,7 @@ function displayGreyScreen(pixels) {
 /**
  * Method utilized to alter the pixel in order to create a background effect based on the image data passed in
  * @param {ImageData} pixels the image data that represents the current frame displayed
+ * @returns a image data that consisted of the altered image data
  */
 function backgroundRemoval(pixels) {
   let minX = videoWidth
@@ -531,6 +558,7 @@ function backgroundRemoval(pixels) {
 /**
  * Method utilized to alter the pixel in order to create a mirror effect based on the image data passed in
  * @param {ImageData} pixels the image data that represents the current frame displayed
+ * @returns a image data that consisted of the altered image data
  */
 function displayMirror(pixels) {
   var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
@@ -557,11 +585,14 @@ function displayMirror(pixels) {
 
 
 
+
+
 /**
  * Method that alters the color hue of the given image with pixlation and hue alternation
  * @param {ImageData} pixels the image data that represents the current frame displayed
  * @param {int} scaleFactor the int that represents how much will be max pixels to be scaled
  * @param {int} hue the amount (in degrees) to change the hue
+ * @returns a image data that consisted of the altered image data
  */
 function pixelatedHue(pixels,scaleFactor,hue){
   let pixelatedImage = displayPixelate(pixels,scaleFactor)
@@ -577,11 +608,106 @@ function pixelatedHue(pixels,scaleFactor,hue){
 }
 
 
+/**
+ * Method that alters the image by executing a continous different degress of pixelation
+ * @param {ImageData} pixels the origin image data
+ * @param {ImageData} tempResult the image data where the altered pixels is stored
+ * @returns a image data that consisted of the altered image data
+ */
+function countinousPixelation(pixels,tempResult){
+  if(pixlation >= 50)
+        shrink = true
+      else if(pixlation <= 1){
+        if(pixlation < 1)
+          pixlation = 1
+        shrink = false
+      }
+        
+      tempResult = displayPixelate(pixels,pixlation)
+      if(!shrink && frameCounter == 7){
+        pixlation+=1
+        frameCounter = 0
+      }
+      else if( !shrink && frameCounter < 7)
+        frameCounter++
+      else if(shrink && frameCounter == 7){
+        pixlation-=1
+        frameCounter = 0
+      }
+      else{
+        frameCounter++
+      }
+  return tempResult
+
+}
+
+
+/**
+ * Method that alters the image with pixelation and wave alternation
+ * @param {ImageData} pixels the original pixel data
+ * @param {int} scaleFactor the factor where the pixel is scaled by
+ * @returns a image data that consisted of the altered pixel image
+ */
+function pixelatedWave(pixels,scaleFactor){
+  let pixlatedImage = displayPixelate(pixels,scaleFactor)
+  return displayWave(pixlatedImage)
+}
+
+/**
+ * Method that alters the image with mirror and wave alternation
+ * @param {ImageData} pixels the original pixel data
+ * @returns a image data that consisted of the altered pixel image
+ */
+ function mirrorWave(pixels){
+  let mirror = displayMirror(pixels)
+  return displayWave(mirror)
+}
+
+
+/**
+ * Method that alters the image with continous pixelation and mirror alternation
+ * @param {ImageData} pixels the original pixel data
+ * @returns a image data that consisted of the altered pixel image
+ */
+ function mirrorContinousPixelation(pixels,tempResult){
+  let mirror = displayMirror(pixels)
+  return countinousPixelation(mirror,tempResult)
+}
+
+
+/**
+ * Method that alters the image with background removal and mirror alternation
+ * @param {ImageData} pixels the original pixel data
+ * @returns a image data that consisted of the altered pixel image
+ */
+ function backgroundRemovalMirrorWithSpiral(pixels){
+  let backgroundRemoved = backgroundRemoval(pixels);
+  backgroundRemoved =  displayMirror(backgroundRemoved)
+  return displaySpiral(backgroundRemoved);
+}
+
+
+
+/**
+ * Method that alters the image with pixelation Mirror,and Spiral alternation
+ * @param {ImageData} pixels the original pixel data
+ * @param {int} scaleFactor the factor where the pixel is scaled by
+ * @returns a image data that consisted of the altered pixel image
+ */
+ function pixelatedSpiralWithMirror(pixels,scaleFactor){
+  let pixelatedImage = displayPixelate(pixels,scaleFactor);
+  pixelatedImage = displaySpiral(pixelatedImage)
+  return displayMirror(pixelatedImage)
+}
+
+
+
 
 /**
  * Method that alters the color hue of the given image
  * @param {ImageData} pixels the image data that represents the current frame displayed
  * @param {int} hue the amount (in degrees) to change the hue
+ * @returns a image data that consisted of the altered image data
  */
 function changeHue(pixels, hue)
 {
@@ -609,14 +735,7 @@ function changeHue(pixels, hue)
 
     }
   }
-  secondCtx.putImageData(pixels, 0, 0);
-  timeDisplayed++;
-  console.log(timeDisplayed)
-
-  ctx.drawImage(secondCanvas, 0, 0, videoWidth, videoHeight,
-    offsetX, offsetY, scale * videoWidth, scale * videoHeight);
-
-  window.requestAnimationFrame(loop, canvas);
+  return pixels
 }
 
 /**
@@ -625,7 +744,7 @@ function changeHue(pixels, hue)
 let video = document.createElement("video");
 video.autoplay = true;
 
-
+//Getting the camera
 if (navigator.mediaDevices.getUserMedia) {
   navigator.mediaDevices.getUserMedia({ video: true })
     .then(function (stream) {
