@@ -91,7 +91,7 @@ function switchDisplay(pixels) {
       tempResult = displayGreyScreen(pixels)
     }
     else {
-      currentDisplay = "ContinousPixelationWithMirror"
+      currentDisplay = "Spiral"
       timeDisplayed = 0
     }
   }
