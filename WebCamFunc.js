@@ -92,7 +92,7 @@ function switchDisplay(pixels) {
 
   let tempResult
   if (currentDisplay == "Gray Scale") {
-    if (timeDisplayed < 500) {
+    if (timeDisplayed < 5) {
       tempResult = displayGreyScreen(pixels);
     }
     else {
@@ -102,7 +102,7 @@ function switchDisplay(pixels) {
   }
 
   if (currentDisplay == "4 Images") {
-    if (timeDisplayed < 500) {
+    if (timeDisplayed < 5) {
       tempResult = display4images(pixels);
     }
     else {
@@ -111,7 +111,7 @@ function switchDisplay(pixels) {
     }
   }
   if (currentDisplay == "Spiral") {
-    if (timeDisplayed < 500) {
+    if (timeDisplayed < 5) {
       tempResult =displaySpiral(pixels);
     }
     else {
@@ -122,7 +122,7 @@ function switchDisplay(pixels) {
   }
 
   if (currentDisplay == "Pixelate") {
-    if (timeDisplayed < 500) {
+    if (timeDisplayed < 5) {
       tempResult =displayPixelate(pixels, 10)
     }
     else {
@@ -133,7 +133,7 @@ function switchDisplay(pixels) {
   }
 
   if (currentDisplay == "Upside Down") {
-    if (timeDisplayed < 500) {
+    if (timeDisplayed < 5) {
       tempResult =displayUpsideDown(pixels)
     }
     else {
@@ -143,7 +143,7 @@ function switchDisplay(pixels) {
     }
   }
   if (currentDisplay == "Wave") {
-    if (timeDisplayed < 500) {
+    if (timeDisplayed < 5) {
       tempResult =displayWave(pixels)
     }
     else {
@@ -153,7 +153,7 @@ function switchDisplay(pixels) {
     }
   }
   if (currentDisplay == "Background Removal") {
-     if (timeDisplayed < 2000) {
+     if (timeDisplayed < 2) {
       tempResult =backgroundRemoval(pixels)
      }
      else {
@@ -163,7 +163,7 @@ function switchDisplay(pixels) {
      }
   }
   if (currentDisplay == "Hue Shift") {
-      if (timeDisplayed < 2000) {
+      if (timeDisplayed < 2) {
         tempResult =changeHue(pixels, hueValue)
         if (hueValue == 360)
         {
@@ -181,7 +181,7 @@ function switchDisplay(pixels) {
       }
   }
   if (currentDisplay == "Pixelated Hue Shift") {
-    if (timeDisplayed < 500) {
+    if (timeDisplayed < 5) {
       tempResult = pixelatedHue(pixels,10,hueValue)
     }
     else {
@@ -190,7 +190,7 @@ function switchDisplay(pixels) {
     }
   }
   if (currentDisplay == "Continous Pixlation") {
-    if (timeDisplayed < 5000) {
+    if (timeDisplayed < 5) {
       tempResult = countinousPixelation(pixels,tempResult)
     }
     else {
@@ -199,7 +199,7 @@ function switchDisplay(pixels) {
     }
   }
   if (currentDisplay == "Pixelated Wave") {
-    if (timeDisplayed < 500) {
+    if (timeDisplayed < 5) {
       tempResult = pixelatedWave(pixels,15)
     }
     else {
@@ -208,7 +208,7 @@ function switchDisplay(pixels) {
     }
   }
   if (currentDisplay == "Background Removed Mirror With Spiral") {
-    if (timeDisplayed < 500) {
+    if (timeDisplayed < 5) {
       tempResult = backgroundRemovalMirrorWithSpiral(pixels)
     }
     else {
@@ -217,7 +217,7 @@ function switchDisplay(pixels) {
     }
   }
   if (currentDisplay == "Pixelated Spiral") {
-    if (timeDisplayed < 500) {
+    if (timeDisplayed < 5) {
       tempResult = pixelatedSpiralWithMirror(pixels,10)
     }
     else {
@@ -226,7 +226,7 @@ function switchDisplay(pixels) {
     }
   }
   if (currentDisplay == "Continous Pixelation With Mirror") {
-    if (timeDisplayed < 500) {
+    if (timeDisplayed < 5) {
       tempResult = mirrorContinousPixelation(pixels,tempResult)
     }
     else {
@@ -235,7 +235,7 @@ function switchDisplay(pixels) {
     }
   }
   if (currentDisplay == "Mirror Wave") {
-    if (timeDisplayed < 500) {
+    if (timeDisplayed < 5) {
       tempResult = mirrorWave(pixels)
     }
     else {
@@ -244,8 +244,17 @@ function switchDisplay(pixels) {
     }
   }
   if (currentDisplay == "Mirror") {
-    if (timeDisplayed < 2000) {
+    if (timeDisplayed < 2) {
       tempResult =displayMirror(pixels)
+    }
+    else {
+      currentDisplay = "MovingRectangle"
+      timeDisplayed = 0
+    }
+  }
+  if (currentDisplay == "MovingRectangle") {
+    if (timeDisplayed < 5000) {
+      tempResult =movingRectangle(pixels)
     }
     else {
       window.location.href = window.location.href
@@ -800,6 +809,146 @@ function changeHue(pixels, hue)
   return pixels
 }
 
+function drawRectangle(pixels, rectWidth, rectHeight, posX, posY)
+{
+  let pixelIndex;
+  //Draw the top and bottom borders of the rectangle
+  for(let x = posX; x < posX + rectWidth; x++)
+  {
+    pixelIndex = videoWidth * posY * 4 + x * 4;
+
+    pixels.data[pixelIndex] = 0;
+    pixels.data[pixelIndex + 1] = 0;
+    pixels.data[pixelIndex + 2] = 0;
+
+    pixelIndex = videoWidth * (posY + rectHeight - 1) * 4 + x * 4;
+
+    pixels.data[pixelIndex] = 0;
+    pixels.data[pixelIndex + 1] = 0;
+    pixels.data[pixelIndex + 2] = 0;
+  }
+
+  //Draw the left and right borders of the rectangle
+  for(let y = posY; y < posY + rectHeight; y++)
+  {
+    pixelIndex = videoWidth * y * 4 + posX * 4;
+
+    pixels.data[pixelIndex] = 0;
+    pixels.data[pixelIndex + 1] = 0;
+    pixels.data[pixelIndex + 2] = 0;
+
+    pixelIndex = videoWidth * y * 4 + (posX + rectWidth - 1) * 4;
+
+    pixels.data[pixelIndex] = 0;
+    pixels.data[pixelIndex + 1] = 0;
+    pixels.data[pixelIndex + 2] = 0;
+  }
+
+  return pixels;
+}
+
+function movingRectangle(pixels)
+{
+  //let xIncreasing = true;
+  //let yIncreasing = true;
+  //let currentX = 0;
+  //let currentY = 0;
+
+  let tempResult = drawRectangle(pixels, 200, 200, currentX, currentY);
+
+  if(xIncreasing == true && yIncreasing == true)
+  {
+    if(currentX + 200 >= videoWidth)
+    {
+      xIncreasing = false;
+      currentX--;
+    }
+    else
+    {
+      currentX++;
+    }
+
+    if(currentY + 200 >= videoHeight)
+    {
+      yIncreasing = false;
+      currentY--;
+    }
+    else
+    {
+      currentY++;
+    }
+  }
+  else if(xIncreasing == true && yIncreasing == false)
+  {
+    if(currentX + 200 >= videoWidth)
+    {
+      xIncreasing = false;
+      currentX--;
+    }
+    else
+    {
+      currentX++;
+    }
+
+    if(currentY <= 0)
+    {
+      yIncreasing = true;
+      currentY++;
+    }
+    else
+    {
+      currentY--;
+    }
+  }
+  else if(xIncreasing == false && yIncreasing == true)
+  {
+    if(currentX <= 0)
+    {
+      xIncreasing = true;
+      currentX++;
+    }
+    else
+    {
+      currentX--;
+    }
+
+    if(currentY + 200 >= videoHeight)
+    {
+      yIncreasing = false;
+      currentY--;
+    }
+    else
+    {
+      currentY++;
+    }
+  }
+  else
+  {
+    if(currentX <= 0)
+    {
+      xIncreasing = true;
+      currentX++;
+    }
+    else
+    {
+      currentX--;
+    }
+
+    if(currentY <= 0)
+    {
+      yIncreasing = true;
+      currentY++;
+    }
+    else
+    {
+      currentY--;
+    }
+  }
+
+  return tempResult;
+
+}
+
 /**
  * The video element that serves the purpose of receving the input through webcam
  **/
@@ -944,6 +1093,11 @@ let frameCounter = 0;
  * A variable utilized to determine the rate of pixelation
  */
 let pixlation = 1;
+
+let xIncreasing = true;
+let yIncreasing = true;
+let currentX = 0;
+let currentY = 0;
 
 //Loading the background image as a global variable to pretend repetition
 var img = new Image();
