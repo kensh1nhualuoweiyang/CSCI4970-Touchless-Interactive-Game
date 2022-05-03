@@ -19,6 +19,7 @@
     tempCanvas.height = videoHeight;
 
     ctx.fillStyle = "black";
+    
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     let scaleX = 1;
@@ -27,8 +28,12 @@
     proposedScaleY = window.innerHeight / settings.height;
     scale = Math.min(proposedScaleX, proposedScaleY);
 
+
+
     offsetX = 0;
     offsetY = 0;
+
+
 
     if (scale != proposedScaleX) {
       offsetX = (proposedScaleX - scale) * videoWidth / 2
@@ -48,18 +53,24 @@
 
 
     secondCtx.putImageData(result, 0, 0);
-    var img = new Image();
-    img.src="money.jpg";
+    
     tempCtx.drawImage(img,0,0,videoWidth,videoHeight);
     tempImageData = tempCtx.getImageData(0,0,videoWidth,videoHeight);
 
+    
     timeDisplayed++;
     console.log(timeDisplayed);
+    
+
+    
   
     ctx.drawImage(secondCanvas, 0, 0, videoWidth, videoHeight,
       offsetX, offsetY, scale * videoWidth, scale * videoHeight);
-     
-  
+    
+
+    ctx.font = '50px serif';
+    ctx.fillStyle = "white";
+    ctx.fillText(currentDisplay, (canvas.width-proposedScaleX)/2,  canvas.height-10);
     window.requestAnimationFrame(loop, canvas);
 
   }
@@ -85,16 +96,11 @@ function switchDisplay(pixels) {
       tempResult = displayGreyScreen(pixels);
     }
     else {
-<<<<<<< Updated upstream
       currentDisplay = "4 Images"
-=======
-      currentDisplay = "HueChange"
->>>>>>> Stashed changes
       timeDisplayed = 0
     }
   }
 
-<<<<<<< Updated upstream
   if (currentDisplay == "4 Images") {
     if (timeDisplayed < 500) {
       tempResult = display4images(pixels);
@@ -104,8 +110,6 @@ function switchDisplay(pixels) {
       timeDisplayed = 0
     }
   }
-=======
->>>>>>> Stashed changes
   if (currentDisplay == "Spiral") {
     if (timeDisplayed < 500) {
       tempResult =displaySpiral(pixels);
@@ -122,13 +126,13 @@ function switchDisplay(pixels) {
       tempResult =displayPixelate(pixels, 10)
     }
     else {
-      currentDisplay = "UpsideDown"
+      currentDisplay = "Upside Down"
       timeDisplayed = 0
       window.requestAnimationFrame(loop, canvas);
     }
   }
 
-  if (currentDisplay == "UpsideDown") {
+  if (currentDisplay == "Upside Down") {
     if (timeDisplayed < 500) {
       tempResult =displayUpsideDown(pixels)
     }
@@ -143,23 +147,22 @@ function switchDisplay(pixels) {
       tempResult =displayWave(pixels)
     }
     else {
-      currentDisplay = "BackgroundRemoval"
+      currentDisplay = "Background Removal"
       timeDisplayed = 0
       window.requestAnimationFrame(loop, canvas);
     }
   }
-  if (currentDisplay == "BackgroundRemoval") {
+  if (currentDisplay == "Background Removal") {
      if (timeDisplayed < 2000) {
       tempResult =backgroundRemoval(pixels)
      }
      else {
-       currentDisplay = "HueChange"
+       currentDisplay = "Hue Shift"
        timeDisplayed = 0
        window.requestAnimationFrame(loop, canvas);
      }
   }
-  if (currentDisplay == "HueChange") {
-<<<<<<< Updated upstream
+  if (currentDisplay == "Hue Shift") {
       if (timeDisplayed < 2000) {
         tempResult =changeHue(pixels, hueValue)
         if (hueValue == 360)
@@ -172,12 +175,12 @@ function switchDisplay(pixels) {
         }
       }
       else {
-        currentDisplay = "PixelatedHue"
+        currentDisplay = "Pixelated Hue Shift"
         timeDisplayed = 0
         window.requestAnimationFrame(loop, canvas);
       }
   }
-  if (currentDisplay == "PixelatedHue") {
+  if (currentDisplay == "Pixelated Hue Shift") {
     if (timeDisplayed < 500) {
       tempResult = pixelatedHue(pixels,10,hueValue)
     }
@@ -191,68 +194,55 @@ function switchDisplay(pixels) {
       tempResult = countinousPixelation(pixels,tempResult)
     }
     else {
-      currentDisplay = "PixelatedWave"
+      currentDisplay = "Pixelated Wave"
       timeDisplayed = 0
     }
   }
-  if (currentDisplay == "PixelatedWave") {
+  if (currentDisplay == "Pixelated Wave") {
     if (timeDisplayed < 500) {
       tempResult = pixelatedWave(pixels,15)
     }
     else {
-      currentDisplay = "BackgroundRemovalMirrorWithSpiral"
+      currentDisplay = "Background Removed Mirror With Spiral"
       timeDisplayed = 0
     }
   }
-  if (currentDisplay == "BackgroundRemovalMirrorWithSpiral") {
+  if (currentDisplay == "Background Removed Mirror With Spiral") {
     if (timeDisplayed < 500) {
       tempResult = backgroundRemovalMirrorWithSpiral(pixels)
     }
     else {
-      currentDisplay = "PixelatedSpiral"
+      currentDisplay = "Pixelated Spiral"
       timeDisplayed = 0
     }
   }
-  if (currentDisplay == "PixelatedSpiral") {
+  if (currentDisplay == "Pixelated Spiral") {
     if (timeDisplayed < 500) {
       tempResult = pixelatedSpiralWithMirror(pixels,10)
     }
     else {
-      currentDisplay = "ContinousPixelationWithMirror"
+      currentDisplay = "Continous Pixelation With Mirror"
       timeDisplayed = 0
     }
   }
-  if (currentDisplay == "ContinousPixelationWithMirror") {
+  if (currentDisplay == "Continous Pixelation With Mirror") {
     if (timeDisplayed < 500) {
       tempResult = mirrorContinousPixelation(pixels,tempResult)
     }
     else {
-      currentDisplay = "MirrorWave"
+      currentDisplay = "Mirror Wave"
       timeDisplayed = 0
     }
   }
-  if (currentDisplay == "MirrorWave") {
+  if (currentDisplay == "Mirror Wave") {
     if (timeDisplayed < 500) {
       tempResult = mirrorWave(pixels)
-=======
-    if (timeDisplayed < 2000) {
-      tempResult =changeHue(pixels, hueValue)
-      if (hueValue == 360)
-      {
-        hueValue = 1;
-      }
-      else
-      {
-        hueValue++;
-      }
->>>>>>> Stashed changes
     }
     else {
       currentDisplay = "Mirror"
       timeDisplayed = 0
-      window.requestAnimationFrame(loop, canvas);
     }
- }
+  }
   if (currentDisplay == "Mirror") {
     if (timeDisplayed < 2000) {
       tempResult =displayMirror(pixels)
@@ -607,7 +597,6 @@ function displayMirror(pixels) {
   return transformedImageData
 
 }
-<<<<<<< Updated upstream
 
 
 
@@ -679,8 +668,6 @@ function pixelatedWave(pixels,scaleFactor){
   return displayWave(pixlatedImage)
 }
 
-=======
->>>>>>> Stashed changes
 /**
  * Method that alters the image with mirror and wave alternation
  * @param {ImageData} pixels the original pixel data
@@ -730,7 +717,11 @@ function pixelatedWave(pixels,scaleFactor){
 
 
 
-
+/**
+ * Method that alters the image with spliting the image into 4 identical portion and each with different color
+ * @param {ImageData} pixels the original pixel data
+ * @returns a image data that consisted of the altered pixel image
+ */
 function display4images(pixels) {
   var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
   for (let y = 0; y < videoHeight / 2  ; y ++ ) {
@@ -933,4 +924,27 @@ let previousPixel
  */
 let result
 
+
+/**
+ * A element used to store a temporay image data
+ */
 let tempImageData
+
+/**
+ * A boolean variable utilized to indicate whether the effect should increase or decrease pixelation
+ */
+let shrink
+
+/**
+ * A variable utilized to determined whether next level of pixelation should be applied
+ */
+let frameCounter = 0;
+
+/**
+ * A variable utilized to determine the rate of pixelation
+ */
+let pixlation = 1;
+
+//Loading the background image as a global variable to pretend repetition
+var img = new Image();
+img.src="background.jpg";
