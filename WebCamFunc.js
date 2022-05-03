@@ -175,7 +175,7 @@ function switchDisplay(pixels) {
         }
       }
       else {
-        currentDisplay = "Pixelated Hue Shift"
+        currentDisplay = "Continous Pixlation"
         timeDisplayed = 0
         window.requestAnimationFrame(loop, canvas);
       }
@@ -185,7 +185,7 @@ function switchDisplay(pixels) {
       tempResult = pixelatedHue(pixels,10,hueValue)
     }
     else {
-      currentDisplay = "Continous Pixlation"
+      currentDisplay = "Background Removed Mirror With Spiral"
       timeDisplayed = 0
     }
   }
@@ -203,7 +203,7 @@ function switchDisplay(pixels) {
       tempResult = pixelatedWave(pixels,15)
     }
     else {
-      currentDisplay = "Background Removed Mirror With Spiral"
+      currentDisplay = "Pixelated Hue Shift"
       timeDisplayed = 0
     }
   }
@@ -212,7 +212,7 @@ function switchDisplay(pixels) {
       tempResult = backgroundRemovalMirrorWithSpiral(pixels)
     }
     else {
-      currentDisplay = "Pixelated Spiral"
+      currentDisplay = "Continous Pixelation With Mirror"
       timeDisplayed = 0
     }
   }
@@ -221,7 +221,7 @@ function switchDisplay(pixels) {
       tempResult = pixelatedSpiralWithMirror(pixels,10)
     }
     else {
-      currentDisplay = "Continous Pixelation With Mirror"
+      currentDisplay = "Mirror Wave"
       timeDisplayed = 0
     }
   }
@@ -230,7 +230,7 @@ function switchDisplay(pixels) {
       tempResult = mirrorContinousPixelation(pixels,tempResult)
     }
     else {
-      currentDisplay = "Mirror Wave"
+      currentDisplay = "Pixelated Spiral"
       timeDisplayed = 0
     }
   }
