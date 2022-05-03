@@ -27,12 +27,8 @@
     proposedScaleY = window.innerHeight / settings.height;
     scale = Math.min(proposedScaleX, proposedScaleY);
 
-
-
     offsetX = 0;
     offsetY = 0;
-
-
 
     if (scale != proposedScaleX) {
       offsetX = (proposedScaleX - scale) * videoWidth / 2
@@ -52,15 +48,13 @@
 
 
     secondCtx.putImageData(result, 0, 0);
-    
+    var img = new Image();
+    img.src="money.jpg";
     tempCtx.drawImage(img,0,0,videoWidth,videoHeight);
     tempImageData = tempCtx.getImageData(0,0,videoWidth,videoHeight);
 
     timeDisplayed++;
     console.log(timeDisplayed);
-    
-
-    
   
     ctx.drawImage(secondCanvas, 0, 0, videoWidth, videoHeight,
       offsetX, offsetY, scale * videoWidth, scale * videoHeight);
@@ -91,11 +85,16 @@ function switchDisplay(pixels) {
       tempResult = displayGreyScreen(pixels);
     }
     else {
+<<<<<<< Updated upstream
       currentDisplay = "4 Images"
+=======
+      currentDisplay = "HueChange"
+>>>>>>> Stashed changes
       timeDisplayed = 0
     }
   }
 
+<<<<<<< Updated upstream
   if (currentDisplay == "4 Images") {
     if (timeDisplayed < 500) {
       tempResult = display4images(pixels);
@@ -105,6 +104,8 @@ function switchDisplay(pixels) {
       timeDisplayed = 0
     }
   }
+=======
+>>>>>>> Stashed changes
   if (currentDisplay == "Spiral") {
     if (timeDisplayed < 500) {
       tempResult =displaySpiral(pixels);
@@ -158,6 +159,7 @@ function switchDisplay(pixels) {
      }
   }
   if (currentDisplay == "HueChange") {
+<<<<<<< Updated upstream
       if (timeDisplayed < 2000) {
         tempResult =changeHue(pixels, hueValue)
         if (hueValue == 360)
@@ -232,12 +234,25 @@ function switchDisplay(pixels) {
   if (currentDisplay == "MirrorWave") {
     if (timeDisplayed < 500) {
       tempResult = mirrorWave(pixels)
+=======
+    if (timeDisplayed < 2000) {
+      tempResult =changeHue(pixels, hueValue)
+      if (hueValue == 360)
+      {
+        hueValue = 1;
+      }
+      else
+      {
+        hueValue++;
+      }
+>>>>>>> Stashed changes
     }
     else {
       currentDisplay = "Mirror"
       timeDisplayed = 0
+      window.requestAnimationFrame(loop, canvas);
     }
-  }
+ }
   if (currentDisplay == "Mirror") {
     if (timeDisplayed < 2000) {
       tempResult =displayMirror(pixels)
@@ -592,6 +607,7 @@ function displayMirror(pixels) {
   return transformedImageData
 
 }
+<<<<<<< Updated upstream
 
 
 
@@ -663,6 +679,8 @@ function pixelatedWave(pixels,scaleFactor){
   return displayWave(pixlatedImage)
 }
 
+=======
+>>>>>>> Stashed changes
 /**
  * Method that alters the image with mirror and wave alternation
  * @param {ImageData} pixels the original pixel data
@@ -916,12 +934,3 @@ let previousPixel
 let result
 
 let tempImageData
-
-let shrink
-
-let frameCounter = 0;
-
-let pixlation = 1;
-
-var img = new Image();
-img.src="money.jpg";
