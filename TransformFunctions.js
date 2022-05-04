@@ -355,3 +355,42 @@ function flipImage(pixels)
   }
   return transformedImageData;
 }
+
+function increaseColor(pixels, red, green, blue)
+{
+  for(let y = 0; y < videoHeight; y++)
+  {
+    for(let x = 0; x < videoWidth; x++)
+    {
+      pixelIndex = videoWidth * y * 4 + x * 4;
+      
+      if(pixels.data[pixelIndex] + red < 255)
+      {
+        pixels.data[pixelIndex] += red;
+      }
+      else
+      {
+        pixels.data[pixelIndex] = 255;
+      }
+
+      if(pixels.data[pixelIndex + 1] + green < 255)
+      {
+        pixels.data[pixelIndex + 1] += green;
+      }
+      else
+      {
+        pixels.data[pixelIndex + 1] = 255;
+      }
+
+      if(pixels.data[pixelIndex + 2] + blue < 255)
+      {
+        pixels.data[pixelIndex + 2] += blue;
+      }
+      else
+      {
+        pixels.data[pixelIndex + 2] = 255;
+      }
+    }
+  }
+  return pixels;
+}

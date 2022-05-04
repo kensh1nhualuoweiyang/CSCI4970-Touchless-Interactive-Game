@@ -307,7 +307,7 @@ function switchDisplay(pixels) {
       tempResult = spiral(pixels);
       break;
     case "Continuous Pixelation":
-      if(timeDisplayed >= 500)
+      if(timeDisplayed >= 1000)
       {
         currentDisplay = "Moving Rectangle";
         timeDisplayed = 0;
@@ -337,7 +337,7 @@ function switchDisplay(pixels) {
         currentDisplay = "Pixelated Spiral";
         timeDisplayed = 0;
       }
-      tempResult = backgroundRemoval(changeHue(pixels, 60));
+      tempResult = backgroundRemoval(increaseColor(pixels, 0, 0, 50));
       break;
     case "Pixelated Spiral":
       if(timeDisplayed >= 500)
@@ -351,9 +351,34 @@ function switchDisplay(pixels) {
     case "Background Removal":
       if(timeDisplayed >= 500)
       {
-        window.location.href = window.location.href;
+        currentDisplay = "Four Corners";
+        timeDisplayed = 0;
       }
       tempResult = backgroundRemoval(pixels);
+      break;
+    case "Four Corners":
+      if(timeDisplayed >= 500)
+      {
+        currentDisplay = "Mirror Spiral";
+        timeDisplayed = 0;
+      }
+      tempResult =display4images(pixels);
+      break;
+    case "Mirror Spiral":
+      if(timeDisplayed >= 500)
+      {
+        currentDisplay = "Volcano";
+        timeDisplayed = 0;
+        img.src = "volcano.jpg";
+      }
+      tempResult = mirror(spiral(pixels));
+      break;
+    case "Volcano":
+      if(timeDisplayed >= 500)
+      {
+        window.location.href = window.location.href;
+      }
+      tempResult = backgroundRemoval(increaseColor(pixels, 40, 0, 0));
       break;
   }
 
@@ -986,21 +1011,21 @@ function movingRectangle(pixels, rectWidth, rectHeight)
     if(currentX + rectWidth >= videoWidth)
     {
       xIncreasing = false;
-      currentX--;
+      currentX-=3;
     }
     else
     {
-      currentX++;
+      currentX+=3;
     }
 
     if(currentY + rectHeight >= videoHeight)
     {
       yIncreasing = false;
-      currentY--;
+      currentY-=3;
     }
     else
     {
-      currentY++;
+      currentY+=3;
     }
   }
   //If the rectangle is moving in the positive x and negative y directions, we need to check if the top right corner is out of bounds
@@ -1009,21 +1034,21 @@ function movingRectangle(pixels, rectWidth, rectHeight)
     if(currentX + rectWidth >= videoWidth)
     {
       xIncreasing = false;
-      currentX--;
+      currentX-=3;
     }
     else
     {
-      currentX++;
+      currentX+=3;
     }
 
     if(currentY <= 0)
     {
       yIncreasing = true;
-      currentY++;
+      currentY+=3;
     }
     else
     {
-      currentY--;
+      currentY-=3;
     }
   }
   //If the rectangle is moving in the negative x and positive y directions, we need to check if the bottom left corner is out of bounds
@@ -1032,21 +1057,21 @@ function movingRectangle(pixels, rectWidth, rectHeight)
     if(currentX <= 0)
     {
       xIncreasing = true;
-      currentX++;
+      currentX+=3;
     }
     else
     {
-      currentX--;
+      currentX-=3;
     }
 
     if(currentY + rectHeight >= videoHeight)
     {
       yIncreasing = false;
-      currentY--;
+      currentY-=3;
     }
     else
     {
-      currentY++;
+      currentY+=3;
     }
   }
   //If the rectangle is moving in the negative x and y directions, we need to check if the top left corner is out of bounds
@@ -1055,21 +1080,21 @@ function movingRectangle(pixels, rectWidth, rectHeight)
     if(currentX <= 0)
     {
       xIncreasing = true;
-      currentX++;
+      currentX+=3;
     }
     else
     {
-      currentX--;
+      currentX-=3;
     }
 
     if(currentY <= 0)
     {
       yIncreasing = true;
-      currentY++;
+      currentY+=3;
     }
     else
     {
-      currentY--;
+      currentY-=3;
     }
   }
   return tempResult;
@@ -1114,6 +1139,10 @@ if (navigator.mediaDevices.getUserMedia) {
       console.log("Something went wrong! " + error);
     });
 }
+
+window.addEventListener("keydown", function(event){
+  timeDisplayed += 10000;
+}, true);
 
 /**
  * Global variable to keep track of the current hue change value. This variable is used to produce the rainbow effect.
