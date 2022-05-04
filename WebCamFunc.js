@@ -45,9 +45,9 @@
     tempCtx.drawImage(video, 0, 0, settings.width, settings.height);
 
     let pixels = tempCtx.getImageData(0, 0, settings.width, settings.height);
-    result =switchDisplay(flipImage(pixels))
+    result = switchDisplay(flipImage(pixels))
     if(previousPixel == null){
-      previousPixel = tempCtx.getImageData(0, 0, settings.width, settings.height);
+      previousPixel = flipImage(tempCtx.getImageData(0, 0, settings.width, settings.height));
     }
     
 
@@ -91,6 +91,7 @@
 function switchDisplay(pixels) {
 
   let tempResult
+  /*
   if (currentDisplay == "Gray Scale") {
     if (timeDisplayed < 500) {
       tempResult = greyScale(pixels);
@@ -163,7 +164,7 @@ function switchDisplay(pixels) {
      }
   }
   if (currentDisplay == "Hue Shift") {
-      if (timeDisplayed < 200) {
+      if (timeDisplayed < 500) {
         tempResult = changeHue(pixels, hueValue)
         if (hueValue == 360)
         {
@@ -175,7 +176,7 @@ function switchDisplay(pixels) {
         }
       }
       else {
-        currentDisplay = "Continous Pixelation"
+        currentDisplay = "Continuous Pixelation"
         timeDisplayed = 0
         window.requestAnimationFrame(loop, canvas);
       }
@@ -191,7 +192,7 @@ function switchDisplay(pixels) {
   }
   if (currentDisplay == "Continous Pixelation") {
     if (timeDisplayed < 500) {
-      tempResult = countinousPixelation(pixels,tempResult)
+      tempResult = continuousPixelation(pixels,tempResult)
     }
     else {
       currentDisplay = "Pixelated Wave"
@@ -245,7 +246,7 @@ function switchDisplay(pixels) {
     }
   }
   if (currentDisplay == "Mirror") {
-    if (timeDisplayed < 200) {
+    if (timeDisplayed < 500) {
       tempResult = mirror(pixels)
     }
     else {
@@ -261,7 +262,100 @@ function switchDisplay(pixels) {
       window.location.href = window.location.href
     }
   }
+  */
 
+  switch(currentDisplay)
+  {
+    case "Mirror":
+      if(timeDisplayed >= 500)
+      {
+        currentDisplay = "Continuous Hue Change";
+        timeDisplayed = 0;
+      }
+      tempResult = mirror(pixels);
+      break;
+    case "Continuous Hue Change":
+      if(timeDisplayed >= 500)
+      {
+        currentDisplay = "Pixelated Wave";
+        timeDisplayed = 0;
+      }
+      if(hueValue == 360)
+      {
+        hueValue = 1;
+      }
+      else
+      {
+        hueValue++;
+      }
+        tempResult = changeHue(pixels, hueValue);
+      break;
+    case "Pixelated Wave":
+      if(timeDisplayed >= 500)
+      {
+        currentDisplay = "Spiral";
+        timeDisplayed = 0;
+      }
+      tempResult = wave(pixelate(pixels, 6));
+      break;
+    case "Spiral":
+      if(timeDisplayed >= 500)
+      {
+        currentDisplay = "Continuous Pixelation";
+        timeDisplayed = 0;
+      }
+      tempResult = spiral(pixels);
+      break;
+    case "Continuous Pixelation":
+      if(timeDisplayed >= 500)
+      {
+        currentDisplay = "Moving Rectangle";
+        timeDisplayed = 0;
+      }
+      tempResult = continuousPixelation(pixels);
+      break;
+    case "Moving Rectangle":
+      if(timeDisplayed >= 500)
+      {
+        currentDisplay = "Mirror Wave";
+        timeDisplayed = 0;
+      }
+      tempResult = movingRectangle(pixels, 200, 200);
+      break;
+    case "Mirror Wave":
+      if(timeDisplayed >= 500)
+      {
+        currentDisplay = "Underwater";
+        timeDisplayed = 0;
+        img.src = "underwater.jpg";
+      }
+      tempResult = wave(mirror(pixels));
+      break;
+    case "Underwater":
+      if(timeDisplayed >= 500)
+      {
+        currentDisplay = "Pixelated Spiral";
+        timeDisplayed = 0;
+      }
+      tempResult = backgroundRemoval(changeHue(pixels, 60));
+      break;
+    case "Pixelated Spiral":
+      if(timeDisplayed >= 500)
+      {
+        currentDisplay = "Background Removal";
+        timeDisplayed = 0;
+        img.src = "background.jpg";
+      }
+      tempResult = spiral(pixelate(pixels, 6));
+      break;
+    case "Background Removal":
+      if(timeDisplayed >= 500)
+      {
+        window.location.href = window.location.href;
+      }
+      tempResult = backgroundRemoval(pixels);
+      break;
+  }
 
  return tempResult
 }
@@ -551,7 +645,7 @@ function backgroundRemoval(pixels) {
 
 
       //Determine the zone
-      if (difference >= 200) {
+      if (difference >= 300) {
         if (minX > x) {
           minX = x
         }
@@ -572,7 +666,8 @@ function backgroundRemoval(pixels) {
         pixels.data[pixelIndex + 2] = 0
         pixels.data[pixelIndex + 3] = 0
       }
-    }*/
+    }
+    */
     
     
 
@@ -586,6 +681,15 @@ function backgroundRemoval(pixels) {
       }
     }
 
+  }
+  if(frameCounter >= 175)
+  {
+    previousPixel = flipImage(tempCtx.getImageData(0, 0, settings.width, settings.height));
+    frameCounter = 0;
+  }
+  else
+  {
+    frameCounter++;
   }
   return pixels
 }
@@ -644,15 +748,14 @@ function pixelatedHue(pixels, scaleFactor, hue){
   return changeHue(pixelatedImage, hue);
 }
 
-
 /**
  * Method that alters the image by executing a continous different degress of pixelation
  * @param {ImageData} pixels the origin image data
  * @param {ImageData} tempResult the image data where the altered pixels is stored
  * @returns a image data that consisted of the altered image data
  */
-function countinousPixelation(pixels, tempResult){
-  if(pixelation >= 50)
+function continuousPixelation(pixels, tempResult){
+  if(pixelation >= 30)
         shrink = true
       else if(pixelation <= 1){
         if(pixelation < 1)
@@ -661,13 +764,13 @@ function countinousPixelation(pixels, tempResult){
       }
         
       tempResult = pixelate(pixels, pixelation)
-      if(!shrink && frameCounter == 7){
+      if(!shrink && frameCounter == 6){
         pixelation+=1
         frameCounter = 0
       }
-      else if( !shrink && frameCounter < 7)
+      else if( !shrink && frameCounter < 6)
         frameCounter++
-      else if(shrink && frameCounter == 7){
+      else if(shrink && frameCounter == 6){
         pixelation-=1
         frameCounter = 0
       }
@@ -677,6 +780,7 @@ function countinousPixelation(pixels, tempResult){
   return tempResult
 
 }
+
 
 
 /**
@@ -1064,7 +1168,7 @@ let secondCtx = secondCanvas.getContext("2d");
 /**
  * The element that represents which effect will be utilize
  */
-let currentDisplay = "Gray Scale"
+let currentDisplay = "Mirror"
 
 /**
  * A small timer element that represent the time that each effect has been displayed for
