@@ -45,7 +45,7 @@
     tempCtx.drawImage(video, 0, 0, settings.width, settings.height);
 
     let pixels = tempCtx.getImageData(0, 0, settings.width, settings.height);
-    result =switchDisplay(pixels)
+    result =switchDisplay(flipImage(pixels))
     if(previousPixel == null){
       previousPixel = tempCtx.getImageData(0, 0, settings.width, settings.height);
     }
@@ -92,8 +92,8 @@ function switchDisplay(pixels) {
 
   let tempResult
   if (currentDisplay == "Gray Scale") {
-    if (timeDisplayed < 5) {
-      tempResult = displayGreyScreen(pixels);
+    if (timeDisplayed < 500) {
+      tempResult = greyScale(pixels);
     }
     else {
       currentDisplay = "4 Images"
@@ -102,7 +102,7 @@ function switchDisplay(pixels) {
   }
 
   if (currentDisplay == "4 Images") {
-    if (timeDisplayed < 5) {
+    if (timeDisplayed < 500) {
       tempResult = display4images(pixels);
     }
     else {
@@ -111,8 +111,8 @@ function switchDisplay(pixels) {
     }
   }
   if (currentDisplay == "Spiral") {
-    if (timeDisplayed < 5) {
-      tempResult =displaySpiral(pixels);
+    if (timeDisplayed < 500) {
+      tempResult = spiral(pixels);
     }
     else {
       currentDisplay = "Pixelate"
@@ -122,8 +122,8 @@ function switchDisplay(pixels) {
   }
 
   if (currentDisplay == "Pixelate") {
-    if (timeDisplayed < 5) {
-      tempResult =displayPixelate(pixels, 10)
+    if (timeDisplayed < 500) {
+      tempResult = pixelate(pixels, 10)
     }
     else {
       currentDisplay = "Upside Down"
@@ -133,8 +133,8 @@ function switchDisplay(pixels) {
   }
 
   if (currentDisplay == "Upside Down") {
-    if (timeDisplayed < 5) {
-      tempResult =displayUpsideDown(pixels)
+    if (timeDisplayed < 500) {
+      tempResult = upsideDown(pixels)
     }
     else {
       currentDisplay = "Wave"
@@ -143,8 +143,8 @@ function switchDisplay(pixels) {
     }
   }
   if (currentDisplay == "Wave") {
-    if (timeDisplayed < 5) {
-      tempResult =displayWave(pixels)
+    if (timeDisplayed < 500) {
+      tempResult = wave(pixels)
     }
     else {
       currentDisplay = "Background Removal"
@@ -153,7 +153,7 @@ function switchDisplay(pixels) {
     }
   }
   if (currentDisplay == "Background Removal") {
-     if (timeDisplayed < 2) {
+     if (timeDisplayed < 500) {
       tempResult =backgroundRemoval(pixels)
      }
      else {
@@ -163,8 +163,8 @@ function switchDisplay(pixels) {
      }
   }
   if (currentDisplay == "Hue Shift") {
-      if (timeDisplayed < 2) {
-        tempResult =changeHue(pixels, hueValue)
+      if (timeDisplayed < 200) {
+        tempResult = changeHue(pixels, hueValue)
         if (hueValue == 360)
         {
           hueValue = 1;
@@ -175,13 +175,13 @@ function switchDisplay(pixels) {
         }
       }
       else {
-        currentDisplay = "Continous Pixlation"
+        currentDisplay = "Continous Pixelation"
         timeDisplayed = 0
         window.requestAnimationFrame(loop, canvas);
       }
   }
   if (currentDisplay == "Pixelated Hue Shift") {
-    if (timeDisplayed < 5) {
+    if (timeDisplayed < 500) {
       tempResult = pixelatedHue(pixels,10,hueValue)
     }
     else {
@@ -189,8 +189,8 @@ function switchDisplay(pixels) {
       timeDisplayed = 0
     }
   }
-  if (currentDisplay == "Continous Pixlation") {
-    if (timeDisplayed < 5) {
+  if (currentDisplay == "Continous Pixelation") {
+    if (timeDisplayed < 500) {
       tempResult = countinousPixelation(pixels,tempResult)
     }
     else {
@@ -199,8 +199,9 @@ function switchDisplay(pixels) {
     }
   }
   if (currentDisplay == "Pixelated Wave") {
-    if (timeDisplayed < 5) {
-      tempResult = pixelatedWave(pixels,15)
+    if (timeDisplayed < 500) {
+      //tempResult = pixelatedWave(pixels,6)
+      tempResult = wave(pixelate(pixels, 6))
     }
     else {
       currentDisplay = "Pixelated Hue Shift"
@@ -208,7 +209,7 @@ function switchDisplay(pixels) {
     }
   }
   if (currentDisplay == "Background Removed Mirror With Spiral") {
-    if (timeDisplayed < 5) {
+    if (timeDisplayed < 500) {
       tempResult = backgroundRemovalMirrorWithSpiral(pixels)
     }
     else {
@@ -217,7 +218,7 @@ function switchDisplay(pixels) {
     }
   }
   if (currentDisplay == "Pixelated Spiral") {
-    if (timeDisplayed < 5) {
+    if (timeDisplayed < 500) {
       tempResult = pixelatedSpiralWithMirror(pixels,10)
     }
     else {
@@ -226,7 +227,7 @@ function switchDisplay(pixels) {
     }
   }
   if (currentDisplay == "Continous Pixelation With Mirror") {
-    if (timeDisplayed < 5) {
+    if (timeDisplayed < 500) {
       tempResult = mirrorContinousPixelation(pixels,tempResult)
     }
     else {
@@ -235,7 +236,7 @@ function switchDisplay(pixels) {
     }
   }
   if (currentDisplay == "Mirror Wave") {
-    if (timeDisplayed < 5) {
+    if (timeDisplayed < 500) {
       tempResult = mirrorWave(pixels)
     }
     else {
@@ -244,8 +245,8 @@ function switchDisplay(pixels) {
     }
   }
   if (currentDisplay == "Mirror") {
-    if (timeDisplayed < 2) {
-      tempResult =displayMirror(pixels)
+    if (timeDisplayed < 200) {
+      tempResult = mirror(pixels)
     }
     else {
       currentDisplay = "MovingRectangle"
@@ -253,8 +254,8 @@ function switchDisplay(pixels) {
     }
   }
   if (currentDisplay == "MovingRectangle") {
-    if (timeDisplayed < 5000) {
-      tempResult =movingRectangle(pixels)
+    if (timeDisplayed < 500) {
+      tempResult = movingRectangle(pixels, 200, 200)
     }
     else {
       window.location.href = window.location.href
@@ -291,6 +292,7 @@ function copyImageData(srcPixels, dstPixels, width, height) {
  * @param {ImageData} pixels the image data that represents the current frame displayed
  * @returns a image data that consisted of the altered image data
  */
+/*
 function displaySpiral(pixels) {
   var x, y, width, height, size, radius, centerX, centerY, sourcePosition, destPosition;
   var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
@@ -339,6 +341,7 @@ function displaySpiral(pixels) {
   }
   return transformedImageData
 }
+/*
 
 
 /**
@@ -346,6 +349,7 @@ function displaySpiral(pixels) {
  * @param {ImageData} pixels the image data that represents the current frame displayed
  * @returns a image data that consisted of the altered image data
  */
+/*
 function displayWave(pixels) {
   var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
   var originalPixels = pixels.data
@@ -396,12 +400,14 @@ function displayWave(pixels) {
   return transformedImageData
 
 }
+*/
 
 /**
  * Method utilized to alter the pixel in order to create a upside down effect based on the image data passed in
  * @param {ImageData} pixels the image data that represents the current frame displayed
  * @returns a image data that consisted of the altered image data
  */
+/*
 function displayUpsideDown(pixels) {
   var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
 
@@ -420,6 +426,7 @@ function displayUpsideDown(pixels) {
   return transformedImageData
 
 }
+*/
 
 
 /**
@@ -428,6 +435,7 @@ function displayUpsideDown(pixels) {
  * @param {int} scaleFactor the int that represents how much will be max pixels to be scaled
  * @returns a image data that consisted of the altered image data
  */
+/*
 function displayPixelate(pixels, scaleFactor) {
   var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
 
@@ -476,12 +484,14 @@ function displayPixelate(pixels, scaleFactor) {
   return transformedImageData
 
 }
+*/
 
 /**
  * Method utilized to alter the pixel in order to create a grey effect based on the image data passed in
  * @param {ImageData} pixels the image data that represents the current frame displayed
  * @returns a image data that consisted of the altered image data
  */
+/*
 function displayGreyScreen(pixels) {
   for (let y = 0; y < videoHeight; y++) {
     for (let x = 0; x < videoWidth; x++) {
@@ -509,6 +519,7 @@ function displayGreyScreen(pixels) {
   return pixels
 
 }
+*/
 
 /**
  * Method utilized to alter the pixel in order to create a background effect based on the image data passed in
@@ -584,6 +595,7 @@ function backgroundRemoval(pixels) {
  * @param {ImageData} pixels the image data that represents the current frame displayed
  * @returns a image data that consisted of the altered image data
  */
+/*
 function displayMirror(pixels) {
   var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
   for (let y = 0; y < videoHeight; y++) {
@@ -606,20 +618,21 @@ function displayMirror(pixels) {
   return transformedImageData
 
 }
+*/
 
 
 
 
 
 /**
- * Method that alters the color hue of the given image with pixlation and hue alternation
+ * Method that alters the color hue of the given image with pixelation and hue alternation
  * @param {ImageData} pixels the image data that represents the current frame displayed
  * @param {int} scaleFactor the int that represents how much will be max pixels to be scaled
  * @param {int} hue the amount (in degrees) to change the hue
  * @returns a image data that consisted of the altered image data
  */
-function pixelatedHue(pixels,scaleFactor,hue){
-  let pixelatedImage = displayPixelate(pixels,scaleFactor)
+function pixelatedHue(pixels, scaleFactor, hue){
+  let pixelatedImage = pixelate(pixels, scaleFactor)
   if (hueValue == 360)
   {
     hueValue = 1;
@@ -628,7 +641,7 @@ function pixelatedHue(pixels,scaleFactor,hue){
   {
     hueValue++;
   }
-  return changeHue(pixelatedImage,hue);
+  return changeHue(pixelatedImage, hue);
 }
 
 
@@ -638,24 +651,24 @@ function pixelatedHue(pixels,scaleFactor,hue){
  * @param {ImageData} tempResult the image data where the altered pixels is stored
  * @returns a image data that consisted of the altered image data
  */
-function countinousPixelation(pixels,tempResult){
-  if(pixlation >= 50)
+function countinousPixelation(pixels, tempResult){
+  if(pixelation >= 50)
         shrink = true
-      else if(pixlation <= 1){
-        if(pixlation < 1)
-          pixlation = 1
+      else if(pixelation <= 1){
+        if(pixelation < 1)
+          pixelation = 1
         shrink = false
       }
         
-      tempResult = displayPixelate(pixels,pixlation)
+      tempResult = pixelate(pixels, pixelation)
       if(!shrink && frameCounter == 7){
-        pixlation+=1
+        pixelation+=1
         frameCounter = 0
       }
       else if( !shrink && frameCounter < 7)
         frameCounter++
       else if(shrink && frameCounter == 7){
-        pixlation-=1
+        pixelation-=1
         frameCounter = 0
       }
       else{
@@ -672,9 +685,9 @@ function countinousPixelation(pixels,tempResult){
  * @param {int} scaleFactor the factor where the pixel is scaled by
  * @returns a image data that consisted of the altered pixel image
  */
-function pixelatedWave(pixels,scaleFactor){
-  let pixlatedImage = displayPixelate(pixels,scaleFactor)
-  return displayWave(pixlatedImage)
+function pixelatedWave(pixels, scaleFactor){
+  let pixelatedImage = pixelate(pixels, scaleFactor)
+  return wave(pixelatedImage)
 }
 
 /**
@@ -683,8 +696,8 @@ function pixelatedWave(pixels,scaleFactor){
  * @returns a image data that consisted of the altered pixel image
  */
  function mirrorWave(pixels){
-  let mirror = displayMirror(pixels)
-  return displayWave(mirror)
+  let mirroredImage = mirror(pixels)
+  return wave(mirroredImage)
 }
 
 
@@ -693,9 +706,9 @@ function pixelatedWave(pixels,scaleFactor){
  * @param {ImageData} pixels the original pixel data
  * @returns a image data that consisted of the altered pixel image
  */
- function mirrorContinousPixelation(pixels,tempResult){
-  let mirror = displayMirror(pixels)
-  return countinousPixelation(mirror,tempResult)
+ function mirrorContinousPixelation(pixels, tempResult){
+  let mirroredImage = mirror(pixels)
+  return countinousPixelation(mirroredImage, tempResult)
 }
 
 
@@ -706,8 +719,8 @@ function pixelatedWave(pixels,scaleFactor){
  */
  function backgroundRemovalMirrorWithSpiral(pixels){
   let backgroundRemoved = backgroundRemoval(pixels);
-  backgroundRemoved =  displayMirror(backgroundRemoved)
-  return displaySpiral(backgroundRemoved);
+  backgroundRemoved =  mirror(backgroundRemoved)
+  return spiral(backgroundRemoved);
 }
 
 
@@ -718,10 +731,10 @@ function pixelatedWave(pixels,scaleFactor){
  * @param {int} scaleFactor the factor where the pixel is scaled by
  * @returns a image data that consisted of the altered pixel image
  */
- function pixelatedSpiralWithMirror(pixels,scaleFactor){
-  let pixelatedImage = displayPixelate(pixels,scaleFactor);
-  pixelatedImage = displaySpiral(pixelatedImage)
-  return displayMirror(pixelatedImage)
+ function pixelatedSpiralWithMirror(pixels, scaleFactor){
+  let pixelatedImage = pixelate(pixels, scaleFactor);
+  pixelatedImage = spiral(pixelatedImage)
+  return mirror(pixelatedImage)
 }
 
 
@@ -757,13 +770,13 @@ function display4images(pixels) {
       transformedImageData.data[picture2Index + 2] = bAvg;
       transformedImageData.data[picture2Index + 3] = aAvg;
 
-      let picture3Index = pixelIndex + 2* videoWidth * videoHeight;
+      let picture3Index = pixelIndex + 2 * videoWidth * videoHeight;
       transformedImageData.data[picture3Index] = rAvg;
       transformedImageData.data[picture3Index + 1] = 0;
       transformedImageData.data[picture3Index + 2] = bAvg;
       transformedImageData.data[picture3Index + 3] = aAvg;
 
-      let picture4Index = pixelIndex + 2* videoWidth *videoHeight + 2 * videoWidth;
+      let picture4Index = pixelIndex + 2 * videoWidth * videoHeight + 2 * videoWidth;
       transformedImageData.data[picture4Index] = rAvg;
       transformedImageData.data[picture4Index + 1] = gAvg;
       transformedImageData.data[picture4Index + 2] = 0;
@@ -780,6 +793,7 @@ function display4images(pixels) {
  * @param {int} hue the amount (in degrees) to change the hue
  * @returns a image data that consisted of the altered image data
  */
+/*
 function changeHue(pixels, hue)
 {
   for (let y = 0; y < videoHeight; y++) {
@@ -808,7 +822,9 @@ function changeHue(pixels, hue)
   }
   return pixels
 }
+*/
 
+/*
 function drawRectangle(pixels, rectWidth, rectHeight, posX, posY)
 {
   let pixelIndex;
@@ -846,19 +862,24 @@ function drawRectangle(pixels, rectWidth, rectHeight, posX, posY)
 
   return pixels;
 }
+*/
 
-function movingRectangle(pixels)
+
+/**
+ * Function that uses the drawRectangle function to create a moving rectangle that bounces off the side of the image
+ * @param {ImageData} pixels the image data that represents the current frame displayed
+ * @param {int} rectWidth the width in pixels of the drawn rectangle
+ * @param {int} rectHeight the height in pixels of the drawn rectangle
+ * @returns image data corresponding to the transformed image
+ */
+function movingRectangle(pixels, rectWidth, rectHeight)
 {
-  //let xIncreasing = true;
-  //let yIncreasing = true;
-  //let currentX = 0;
-  //let currentY = 0;
+  let tempResult = drawRectangle(pixels, rectWidth, rectHeight, currentX, currentY);
 
-  let tempResult = drawRectangle(pixels, 200, 200, currentX, currentY);
-
+  //If the rectangle is moving in the positive x and y directions, we need to check if the bottom right corner is out of bounds
   if(xIncreasing == true && yIncreasing == true)
   {
-    if(currentX + 200 >= videoWidth)
+    if(currentX + rectWidth >= videoWidth)
     {
       xIncreasing = false;
       currentX--;
@@ -868,7 +889,7 @@ function movingRectangle(pixels)
       currentX++;
     }
 
-    if(currentY + 200 >= videoHeight)
+    if(currentY + rectHeight >= videoHeight)
     {
       yIncreasing = false;
       currentY--;
@@ -878,9 +899,10 @@ function movingRectangle(pixels)
       currentY++;
     }
   }
+  //If the rectangle is moving in the positive x and negative y directions, we need to check if the top right corner is out of bounds
   else if(xIncreasing == true && yIncreasing == false)
   {
-    if(currentX + 200 >= videoWidth)
+    if(currentX + rectWidth >= videoWidth)
     {
       xIncreasing = false;
       currentX--;
@@ -900,6 +922,7 @@ function movingRectangle(pixels)
       currentY--;
     }
   }
+  //If the rectangle is moving in the negative x and positive y directions, we need to check if the bottom left corner is out of bounds
   else if(xIncreasing == false && yIncreasing == true)
   {
     if(currentX <= 0)
@@ -912,7 +935,7 @@ function movingRectangle(pixels)
       currentX--;
     }
 
-    if(currentY + 200 >= videoHeight)
+    if(currentY + rectHeight >= videoHeight)
     {
       yIncreasing = false;
       currentY--;
@@ -922,6 +945,7 @@ function movingRectangle(pixels)
       currentY++;
     }
   }
+  //If the rectangle is moving in the negative x and y directions, we need to check if the top left corner is out of bounds
   else
   {
     if(currentX <= 0)
@@ -944,10 +968,31 @@ function movingRectangle(pixels)
       currentY--;
     }
   }
-
   return tempResult;
-
 }
+
+/*
+function flipImage(pixels)
+{
+  var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
+  let pixelIndex;
+  let targetPixelIndex;
+  for(let y = 0; y < videoHeight; y++)
+  {
+    for(let x = 0; x < videoWidth; x++)
+    {
+      pixelIndex = videoWidth * y * 4 + x * 4;
+      targetPixelIndex = videoWidth * y * 4 + (videoWidth - x - 1) * 4;
+
+      transformedImageData.data[targetPixelIndex] = pixels.data[pixelIndex];
+      transformedImageData.data[targetPixelIndex + 1] = pixels.data[pixelIndex + 1];
+      transformedImageData.data[targetPixelIndex + 2] = pixels.data[pixelIndex + 2];
+      transformedImageData.data[targetPixelIndex + 3] = pixels.data[pixelIndex + 3];
+    }
+  }
+  return transformedImageData;
+}
+*/
 
 /**
  * The video element that serves the purpose of receving the input through webcam
@@ -1092,11 +1137,26 @@ let frameCounter = 0;
 /**
  * A variable utilized to determine the rate of pixelation
  */
-let pixlation = 1;
+let pixelation = 1;
 
+/**
+ * A boolean variable used in the moving rectangle function that signifies if the x value of the rectangle is increasing
+ */
 let xIncreasing = true;
+
+/**
+ * A boolean variable used in the moving rectangle function that signifies if the y value of the rectangle is increasing
+ */
 let yIncreasing = true;
+
+/**
+ * A variable keeping track of the current x value for the upper left corner of the rectangle used in the moving rectangle function.
+ */
 let currentX = 0;
+
+/**
+ * A variable keeping track of the current y value for the upper left corner of the rectangle used in the moving rectangle function.
+ */
 let currentY = 0;
 
 //Loading the background image as a global variable to pretend repetition
