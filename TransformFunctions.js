@@ -356,6 +356,14 @@ function flipImage(pixels)
   return transformedImageData;
 }
 
+/**
+ * Function that increases (or decreases) the rgb values of the image
+ * @param {ImageData} pixels the image data that represents the current frame displayed
+ * @param {int} red amount to change the r values by
+ * @param {int} green amount to change the g values by
+ * @param {int} blue amount to change the b values by
+ * @returns image data that consists of the altered image data
+ */
 function increaseColor(pixels, red, green, blue)
 {
   for(let y = 0; y < videoHeight; y++)
