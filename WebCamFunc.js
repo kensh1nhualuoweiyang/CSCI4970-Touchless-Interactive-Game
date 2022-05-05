@@ -1,4 +1,3 @@
-
 /**
  * Main method utilized to loop over the different effects
  */
@@ -45,14 +44,14 @@
     tempCtx.drawImage(video, 0, 0, settings.width, settings.height);
 
     let pixels = tempCtx.getImageData(0, 0, settings.width, settings.height);
-    result = switchDisplay(flipImage(pixels))
+    flipImage(pixels.data);
+    switchDisplay(pixels.data);
     if(previousPixel == null){
-      previousPixel = flipImage(tempCtx.getImageData(0, 0, settings.width, settings.height));
+      previousPixel = tempCtx.getImageData(0, 0, settings.width, settings.height)
+      flipImage(previousPixel.data);
     }
-    
 
-
-    secondCtx.putImageData(result, 0, 0);
+    secondCtx.putImageData(pixels, 0, 0);
     
     tempCtx.drawImage(img,0,0,videoWidth,videoHeight);
     tempImageData = tempCtx.getImageData(0,0,videoWidth,videoHeight);
@@ -90,7 +89,6 @@
  */
 function switchDisplay(pixels) {
 
-  let tempResult;
   switch(currentDisplay)
   {
     case "Mirror":
@@ -99,7 +97,7 @@ function switchDisplay(pixels) {
         currentDisplay = "Continuous Hue Change";
         timeDisplayed = 0;
       }
-      tempResult = mirror(pixels);
+      mirror(pixels);
       break;
     case "Continuous Hue Change":
       if(timeDisplayed >= 500)
@@ -115,7 +113,7 @@ function switchDisplay(pixels) {
       {
         hueValue++;
       }
-        tempResult = changeHue(pixels, hueValue);
+        changeHue(pixels, hueValue);
       break;
     case "Pixelated Wave":
       if(timeDisplayed >= 500)
@@ -123,7 +121,8 @@ function switchDisplay(pixels) {
         currentDisplay = "Spiral";
         timeDisplayed = 0;
       }
-      tempResult = wave(pixelate(pixels, 6));
+      pixelate(pixels, 6)
+      wave(pixels);
       break;
     case "Spiral":
       if(timeDisplayed >= 500)
@@ -131,7 +130,7 @@ function switchDisplay(pixels) {
         currentDisplay = "Continuous Pixelation";
         timeDisplayed = 0;
       }
-      tempResult = spiral(pixels);
+      spiral(pixels);
       break;
     case "Continuous Pixelation":
       if(timeDisplayed >= 1000)
@@ -139,7 +138,7 @@ function switchDisplay(pixels) {
         currentDisplay = "Moving Rectangle";
         timeDisplayed = 0;
       }
-      tempResult = continuousPixelation(pixels);
+      continuousPixelation(pixels);
       break;
     case "Moving Rectangle":
       if(timeDisplayed >= 500)
@@ -147,7 +146,7 @@ function switchDisplay(pixels) {
         currentDisplay = "Mirror Wave";
         timeDisplayed = 0;
       }
-      tempResult = movingRectangle(pixels, 200, 200);
+      movingRectangle(pixels, 200, 200);
       break;
     case "Mirror Wave":
       if(timeDisplayed >= 500)
@@ -155,8 +154,11 @@ function switchDisplay(pixels) {
         currentDisplay = "Underwater";
         timeDisplayed = 0;
         img.src = "underwater.jpg";
+        previousPixel = tempCtx.getImageData(0, 0, settings.width, settings.height)
+        flipImage(previousPixel.data);
       }
-      tempResult = wave(mirror(pixels));
+      mirror(pixels);
+      wave(pixels);
       break;
     case "Underwater":
       if(timeDisplayed >= 500)
@@ -164,7 +166,8 @@ function switchDisplay(pixels) {
         currentDisplay = "Pixelated Spiral";
         timeDisplayed = 0;
       }
-      tempResult = backgroundRemoval(increaseColor(pixels, 0, 0, 50));
+      increaseColor(pixels, 0, 0, 50);
+      backgroundRemoval(pixels);
       break;
     case "Pixelated Spiral":
       if(timeDisplayed >= 500)
@@ -173,7 +176,8 @@ function switchDisplay(pixels) {
         timeDisplayed = 0;
         img.src = "background.jpg";
       }
-      tempResult = spiral(pixelate(pixels, 6));
+      pixelate(pixels, 6);
+      spiral(pixels);
       break;
     case "Background Removal":
       if(timeDisplayed >= 500)
@@ -181,7 +185,7 @@ function switchDisplay(pixels) {
         currentDisplay = "Four Corners";
         timeDisplayed = 0;
       }
-      tempResult = backgroundRemoval(pixels);
+      backgroundRemoval(pixels);
       break;
     case "Four Corners":
       if(timeDisplayed >= 500)
@@ -189,7 +193,7 @@ function switchDisplay(pixels) {
         currentDisplay = "Mirror Spiral";
         timeDisplayed = 0;
       }
-      tempResult =display4images(pixels);
+      display4images(pixels);
       break;
     case "Mirror Spiral":
       if(timeDisplayed >= 500)
@@ -198,7 +202,8 @@ function switchDisplay(pixels) {
         timeDisplayed = 0;
         img.src = "volcano.jpg";
       }
-      tempResult = mirror(spiral(pixels));
+      spiral(pixels);
+      mirror(pixels);
       break;
     case "Volcano":
       if(timeDisplayed >= 500)
@@ -206,31 +211,36 @@ function switchDisplay(pixels) {
         timeDisplayed = 0;
         window.location.href = window.location.href;
       }
-      tempResult = backgroundRemoval(increaseColor(pixels, 40, 0, 0));
+      increaseColor(pixels, 40, 0, 0);
+      backgroundRemoval(pixels);
       break;
   }
-
- return tempResult
 }
 
-/**
- * Method utilized to copy image data into another potentially blank image data object
- * @param {ImageData.data} srcPixels the source of the image data to be copied
- * @param {ImageData.data} dstPixels the destination where the copied image data will be stored
- * @param {int} width the maximum width of pixel to be copied
- * @param {int} height the maximum height of the pixel to be copied
- */
-function copyImageData(srcPixels, dstPixels, width, height) {
-  var x, y, position;
-  for (y = 0; y < height; ++y) {
-    for (x = 0; x < width; ++x) {
-      position = y * width + x;
-      position *= 4;
-      dstPixels[position] = srcPixels[position];
-      dstPixels[position + 1] = srcPixels[position + 1];
-      dstPixels[position + 2] = srcPixels[position + 2];
-      dstPixels[position + 3] = srcPixels[position + 3];
-    }
+function copyImageDataToArray(imageData, data)
+{
+  for(let i = 0; i < videoWidth * videoHeight * 4; i++)
+  {
+    data[i] = imageData.data[i];
+  }
+}
+
+/*
+function copyArrayToImageData(data, imageData)
+{
+  const data = new Array(videoWidth * videoHeight * 4);
+  for(let i = 0; i < videoWidth * videoHeight * 4; i++)
+  {
+    imageData.data[i] = data[i];
+  }
+}
+*/
+
+function copyArray(arrayIn, arrayOut)
+{
+  for(let i = 0; i < arrayIn.length; i++)
+  {
+    arrayOut[i] = arrayIn[i];
   }
 }
 
@@ -252,16 +262,14 @@ function backgroundRemoval(pixels) {
       let previousG = previousPixel.data[pixelIndex + 1]
       let previousB = previousPixel.data[pixelIndex + 2]
       let previousA = previousPixel.data[pixelIndex + 3]
-      let currentR = pixels.data[pixelIndex]
-      let currentG = pixels.data[pixelIndex + 1]
-      let currentB = pixels.data[pixelIndex + 2]
-      let currentA = pixels.data[pixelIndex + 3]
+      let currentR = pixels[pixelIndex]
+      let currentG = pixels[pixelIndex + 1]
+      let currentB = pixels[pixelIndex + 2]
+      let currentA = pixels[pixelIndex + 3]
 
 
       //Calculate the difference in pixel
       let difference = Math.abs(previousR - currentR) + Math.abs(previousA - currentA) + Math.abs(previousB - currentB) + Math.abs(previousG - currentG)
-
-
 
       //Determine the zone
       if (difference >= 300) {
@@ -274,48 +282,27 @@ function backgroundRemoval(pixels) {
       }
     }
    
-    
     for (let x = 0; x < videoWidth; x++) {
       let pixelIndex = videoWidth * 4 * y + x * 4;
       if (x <= minX || x >= maxX) {
-        pixels.data[pixelIndex] = tempImageData.data[pixelIndex]
-        pixels.data[pixelIndex + 1] = tempImageData.data[pixelIndex + 1]
-        pixels.data[pixelIndex + 2] = tempImageData.data[pixelIndex + 2]
-        pixels.data[pixelIndex + 3] = tempImageData.data[pixelIndex + 3]
+        pixels[pixelIndex] = tempImageData.data[pixelIndex]
+        pixels[pixelIndex + 1] = tempImageData.data[pixelIndex + 1]
+        pixels[pixelIndex + 2] = tempImageData.data[pixelIndex + 2]
+        pixels[pixelIndex + 3] = tempImageData.data[pixelIndex + 3]
       }
     }
 
   }
   if(frameCounter >= 175)
   {
-    previousPixel = flipImage(tempCtx.getImageData(0, 0, settings.width, settings.height));
+    previousPixel = tempCtx.getImageData(0, 0, settings.width, settings.height)
+    flipImage(previousPixel.data);
     frameCounter = 0;
   }
   else
   {
     frameCounter++;
   }
-  return pixels
-}
-
-/**
- * Method that alters the color hue of the given image with pixelation and hue alternation
- * @param {ImageData} pixels the image data that represents the current frame displayed
- * @param {int} scaleFactor the int that represents how much will be max pixels to be scaled
- * @param {int} hue the amount (in degrees) to change the hue
- * @returns a image data that consisted of the altered image data
- */
-function pixelatedHue(pixels, scaleFactor, hue){
-  let pixelatedImage = pixelate(pixels, scaleFactor)
-  if (hueValue == 360)
-  {
-    hueValue = 1;
-  }
-  else
-  {
-    hueValue++;
-  }
-  return changeHue(pixelatedImage, hue);
 }
 
 /**
@@ -324,7 +311,7 @@ function pixelatedHue(pixels, scaleFactor, hue){
  * @param {ImageData} tempResult the image data where the altered pixels is stored
  * @returns a image data that consisted of the altered image data
  */
-function continuousPixelation(pixels, tempResult){
+function continuousPixelation(pixels){
   if(pixelation >= 30)
         shrink = true
       else if(pixelation <= 1){
@@ -333,7 +320,7 @@ function continuousPixelation(pixels, tempResult){
         shrink = false
       }
         
-      tempResult = pixelate(pixels, pixelation)
+      pixelate(pixels, pixelation)
       if(!shrink && frameCounter == 6){
         pixelation+=1
         frameCounter = 0
@@ -347,71 +334,7 @@ function continuousPixelation(pixels, tempResult){
       else{
         frameCounter++
       }
-  return tempResult
-
 }
-
-
-
-/**
- * Method that alters the image with pixelation and wave alternation
- * @param {ImageData} pixels the original pixel data
- * @param {int} scaleFactor the factor where the pixel is scaled by
- * @returns a image data that consisted of the altered pixel image
- */
-function pixelatedWave(pixels, scaleFactor){
-  let pixelatedImage = pixelate(pixels, scaleFactor)
-  return wave(pixelatedImage)
-}
-
-/**
- * Method that alters the image with mirror and wave alternation
- * @param {ImageData} pixels the original pixel data
- * @returns a image data that consisted of the altered pixel image
- */
- function mirrorWave(pixels){
-  let mirroredImage = mirror(pixels)
-  return wave(mirroredImage)
-}
-
-
-/**
- * Method that alters the image with continous pixelation and mirror alternation
- * @param {ImageData} pixels the original pixel data
- * @returns a image data that consisted of the altered pixel image
- */
- function mirrorContinousPixelation(pixels, tempResult){
-  let mirroredImage = mirror(pixels)
-  return countinousPixelation(mirroredImage, tempResult)
-}
-
-
-/**
- * Method that alters the image with background removal and mirror alternation
- * @param {ImageData} pixels the original pixel data
- * @returns a image data that consisted of the altered pixel image
- */
- function backgroundRemovalMirrorWithSpiral(pixels){
-  let backgroundRemoved = backgroundRemoval(pixels);
-  backgroundRemoved =  mirror(backgroundRemoved)
-  return spiral(backgroundRemoved);
-}
-
-
-
-/**
- * Method that alters the image with pixelation Mirror,and Spiral alternation
- * @param {ImageData} pixels the original pixel data
- * @param {int} scaleFactor the factor where the pixel is scaled by
- * @returns a image data that consisted of the altered pixel image
- */
- function pixelatedSpiralWithMirror(pixels, scaleFactor){
-  let pixelatedImage = pixelate(pixels, scaleFactor);
-  pixelatedImage = spiral(pixelatedImage)
-  return mirror(pixelatedImage)
-}
-
-
 
 /**
  * Method that alters the image with spliting the image into 4 identical portion and each with different color
@@ -419,47 +342,45 @@ function pixelatedWave(pixels, scaleFactor){
  * @returns a image data that consisted of the altered pixel image
  */
 function display4images(pixels) {
-  var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
+  const pixelsCopy = new Array(pixels.length);
+  copyArray(pixels, pixelsCopy);
   for (let y = 0; y < videoHeight / 2  ; y ++ ) {
     for (let x = 0; x < videoWidth / 2  ; x ++ ) {
       let pixelIndex = (videoWidth * y + x)* 4; //pixel index
       let originIndex = pixelIndex * 2
       let originIndex2 = originIndex + videoWidth * 4
 
-      let rAvg = (pixels.data[originIndex] + pixels.data[originIndex + 4] + pixels.data[originIndex2] + pixels.data[originIndex2 + 4])/4
-      let gAvg =( pixels.data[originIndex + 1] + pixels.data[originIndex + 5] + pixels.data[originIndex2 + 1] + pixels.data[originIndex2 + 5])/4
-      let bAvg = (pixels.data[originIndex + 2] + pixels.data[originIndex + 6] + pixels.data[originIndex2 + 2] + pixels.data[originIndex2 + 6])/4
-      let aAvg = (pixels.data[originIndex + 3] + pixels.data[originIndex + 7] + pixels.data[originIndex2 + 3] + pixels.data[originIndex2 + 7])/4
+      let rAvg = (pixelsCopy[originIndex] + pixelsCopy[originIndex + 4] + pixelsCopy[originIndex2] + pixelsCopy[originIndex2 + 4])/4
+      let gAvg =( pixelsCopy[originIndex + 1] + pixelsCopy[originIndex + 5] + pixelsCopy[originIndex2 + 1] + pixelsCopy[originIndex2 + 5])/4
+      let bAvg = (pixelsCopy[originIndex + 2] + pixelsCopy[originIndex + 6] + pixelsCopy[originIndex2 + 2] + pixelsCopy[originIndex2 + 6])/4
+      let aAvg = (pixelsCopy[originIndex + 3] + pixelsCopy[originIndex + 7] + pixelsCopy[originIndex2 + 3] + pixelsCopy[originIndex2 + 7])/4
 
 
 
-      transformedImageData.data[pixelIndex] = rAvg;
-      transformedImageData.data[pixelIndex + 1] = gAvg;
-      transformedImageData.data[pixelIndex + 2] = bAvg;
-      transformedImageData.data[pixelIndex + 3] = aAvg;
+      pixels[pixelIndex] = rAvg;
+      pixels[pixelIndex + 1] = gAvg;
+      pixels[pixelIndex + 2] = bAvg;
+      pixels[pixelIndex + 3] = aAvg;
 
       let picture2Index = pixelIndex + 2 * videoWidth;
-      transformedImageData.data[picture2Index] = 0;
-      transformedImageData.data[picture2Index + 1] = gAvg;
-      transformedImageData.data[picture2Index + 2] = bAvg;
-      transformedImageData.data[picture2Index + 3] = aAvg;
+      pixels[picture2Index] = 0;
+      pixels[picture2Index + 1] = gAvg;
+      pixels[picture2Index + 2] = bAvg;
+      pixels[picture2Index + 3] = aAvg;
 
       let picture3Index = pixelIndex + 2 * videoWidth * videoHeight;
-      transformedImageData.data[picture3Index] = rAvg;
-      transformedImageData.data[picture3Index + 1] = 0;
-      transformedImageData.data[picture3Index + 2] = bAvg;
-      transformedImageData.data[picture3Index + 3] = aAvg;
+      pixels[picture3Index] = rAvg;
+      pixels[picture3Index + 1] = 0;
+      pixels[picture3Index + 2] = bAvg;
+      pixels[picture3Index + 3] = aAvg;
 
       let picture4Index = pixelIndex + 2 * videoWidth * videoHeight + 2 * videoWidth;
-      transformedImageData.data[picture4Index] = rAvg;
-      transformedImageData.data[picture4Index + 1] = gAvg;
-      transformedImageData.data[picture4Index + 2] = 0;
-      transformedImageData.data[picture4Index + 3] = aAvg;
+      pixels[picture4Index] = rAvg;
+      pixels[picture4Index + 1] = gAvg;
+      pixels[picture4Index + 2] = 0;
+      pixels[picture4Index + 3] = aAvg;
     }
   }
-
-  return transformedImageData
-
 }
 
 /**
@@ -471,7 +392,7 @@ function display4images(pixels) {
  */
 function movingRectangle(pixels, rectWidth, rectHeight)
 {
-  let tempResult = drawRectangle(pixels, rectWidth, rectHeight, currentX, currentY);
+  drawRectangle(pixels, rectWidth, rectHeight, currentX, currentY);
 
   //If the rectangle is moving in the positive x and y directions, we need to check if the bottom right corner is out of bounds
   if(xIncreasing == true && yIncreasing == true)
@@ -565,7 +486,6 @@ function movingRectangle(pixels, rectWidth, rectHeight)
       currentY-=3;
     }
   }
-  return tempResult;
 }
 
 /**

@@ -5,21 +5,20 @@
  */
  function spiral(pixels) {
     var x, y, width, height, size, radius, centerX, centerY, sourcePosition, destPosition;
-    var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
-    var originalPixels = pixels.data;
-    var transformedPixels = transformedImageData.data;
+    pixelsCopy = new Array(pixels.length);
+    copyArray(pixels, pixelsCopy);
+
     var r, alpha;
     var newX, newY;
     var degrees;
-    width = pixels.width;
-    height = pixels.height;
+    width = videoWidth;
+    height = videoHeight;
   
     centerX = Math.floor(width / 2);
     centerY = Math.floor(height / 2);
     size = width < height ? width : height;
     radius = Math.floor(size / 2);
   
-    copyImageData(originalPixels, transformedPixels, width, height);
     for (y = -radius; y < radius; ++y) {
       for (x = -radius; x < radius; ++x) {
   
@@ -42,14 +41,13 @@
           sourcePosition = (newY + centerY) * width + newX + centerX;
           sourcePosition *= 4;
   
-          transformedPixels[destPosition + 0] = originalPixels[sourcePosition + 0];
-          transformedPixels[destPosition + 1] = originalPixels[sourcePosition + 1];
-          transformedPixels[destPosition + 2] = originalPixels[sourcePosition + 2];
-          transformedPixels[destPosition + 3] = originalPixels[sourcePosition + 3];
+          pixels[destPosition + 0] = pixelsCopy[sourcePosition + 0];
+          pixels[destPosition + 1] = pixelsCopy[sourcePosition + 1];
+          pixels[destPosition + 2] = pixelsCopy[sourcePosition + 2];
+          pixels[destPosition + 3] = pixelsCopy[sourcePosition + 3];
         }
       }
     }
-    return transformedImageData
 }
 
 /**
@@ -58,10 +56,9 @@
  * @returns image data that consists of the altered image data
  */
 function wave(pixels) {
-    var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
-    var originalPixels = pixels.data
-    var transformedPixels = transformedImageData.data
-    copyImageData(originalPixels, transformedPixels, pixels.width, pixels.height)
+    const pixelsCopy = new Array(pixels.length);
+    copyArray(pixels, pixelsCopy);
+
     //Variable to determine how many pixels to shift and the direction to shift
     var amt = 18
     var increase = false
@@ -71,7 +68,7 @@ function wave(pixels) {
         //Getting pixel Index
         let pixelIndex = videoWidth * 4 * y + x * 4;
   
-        let targetPixelIndex
+        let targetPixelIndex;
   
   
         if (x + amt >= videoWidth) {
@@ -82,10 +79,10 @@ function wave(pixels) {
         }
   
         //Mapping
-        transformedImageData.data[targetPixelIndex] = pixels.data[pixelIndex];
-        transformedImageData.data[targetPixelIndex + 1] = pixels.data[pixelIndex + 1];
-        transformedImageData.data[targetPixelIndex + 2] = pixels.data[pixelIndex + 2];
-        transformedImageData.data[targetPixelIndex + 3] = pixels.data[pixelIndex + 3];
+        pixels[targetPixelIndex] = pixelsCopy[pixelIndex];
+        pixels[targetPixelIndex + 1] = pixelsCopy[pixelIndex + 1];
+        pixels[targetPixelIndex + 2] = pixelsCopy[pixelIndex + 2];
+        pixels[targetPixelIndex + 3] = pixelsCopy[pixelIndex + 3];
       }
   
       if (count == 0) {
@@ -102,10 +99,7 @@ function wave(pixels) {
           count = 0
         }
       }
-    }
-    previousPixel = flipImage(tempCtx.getImageData(0, 0, settings.width, settings.height));
-    return transformedImageData
-  
+    } 
 }
 
 /**
@@ -115,21 +109,19 @@ function wave(pixels) {
  */
 function upsideDown(pixels) {
     var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
+    const pixelsCopy = new Array(pixels.length);
   
     for (let y = 0; y < videoHeight; y++) {
       for (let x = 0; x < videoWidth; x++) {
         let pixelIndex = videoWidth * 4 * y + x * 4;
         let targetPixelIndex = videoWidth * 4 * (videoHeight - 1 - y) + x * 4;
   
-        transformedImageData.data[targetPixelIndex] = pixels.data[pixelIndex];
-        transformedImageData.data[targetPixelIndex + 1] = pixels.data[pixelIndex + 1];
-        transformedImageData.data[targetPixelIndex + 2] = pixels.data[pixelIndex + 2];
-        transformedImageData.data[targetPixelIndex + 3] = pixels.data[pixelIndex + 3];
+        pixels[targetPixelIndex] = pixelsCopy[pixelIndex];
+        pixels[targetPixelIndex + 1] = pixelsCopy[pixelIndex + 1];
+        pixels[targetPixelIndex + 2] = pixelsCopy[pixelIndex + 2];
+        pixels[targetPixelIndex + 3] = pixelsCopy[pixelIndex + 3];
       }
     }
-  
-    return transformedImageData
-  
 }
 
 /**
@@ -139,7 +131,8 @@ function upsideDown(pixels) {
  * @returns image data that consists of the altered image data
  */
  function pixelate(pixels, scaleFactor) {
-    var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
+    const pixelsCopy = new Array(pixels.length);
+    copyArray(pixels, pixelsCopy);
   
     //Loop over all pixels in the image
     for (let y = 0; y < videoHeight; y += scaleFactor) {
@@ -158,10 +151,10 @@ function upsideDown(pixels) {
           for (let pixelX = x; pixelX < maxX; pixelX++) {
             let pixelIndex = videoWidth * 4 * pixelY + pixelX * 4;
   
-            totalR += pixels.data[pixelIndex];
-            totalG += pixels.data[pixelIndex + 1];
-            totalB += pixels.data[pixelIndex + 2];
-            totalA += pixels.data[pixelIndex + 3];
+            totalR += pixelsCopy[pixelIndex];
+            totalG += pixelsCopy[pixelIndex + 1];
+            totalB += pixelsCopy[pixelIndex + 2];
+            totalA += pixelsCopy[pixelIndex + 3];
           }
         }
         let averageR = Math.round(totalR / ((maxY - y) * (maxX - x)));
@@ -174,17 +167,14 @@ function upsideDown(pixels) {
           for (let pixelX = x; pixelX < maxX; pixelX++) {
             let pixelIndex = videoWidth * 4 * pixelY + pixelX * 4;
   
-            transformedImageData.data[pixelIndex] = averageR;
-            transformedImageData.data[pixelIndex + 1] = averageG;
-            transformedImageData.data[pixelIndex + 2] = averageB;
-            transformedImageData.data[pixelIndex + 3] = averageA;
+            pixels[pixelIndex] = averageR;
+            pixels[pixelIndex + 1] = averageG;
+            pixels[pixelIndex + 2] = averageB;
+            pixels[pixelIndex + 3] = averageA;
           }
         }
       }
     }
-  
-    return transformedImageData
-  
 }
 
 /**
@@ -201,23 +191,21 @@ function upsideDown(pixels) {
   
         //Convert to grayscale on half the image
   
-        let r = pixels.data[pixelIndex];
-        let g = pixels.data[pixelIndex + 1];
-        let b = pixels.data[pixelIndex + 2];
+        let r = pixels[pixelIndex];
+        let g = pixels[pixelIndex + 1];
+        let b = pixels[pixelIndex + 2];
   
         //Trivial grayscale conversion using the red channel
         g = r;
         b = r;
   
         //Update the pixel data
-        pixels.data[pixelIndex] = r;
-        pixels.data[pixelIndex + 1] = g;
-        pixels.data[pixelIndex + 2] = b;
+        pixels[pixelIndex] = r;
+        pixels[pixelIndex + 1] = g;
+        pixels[pixelIndex + 2] = b;
   
       }
     }
-    return pixels
-  
 }
 
 /**
@@ -226,26 +214,17 @@ function upsideDown(pixels) {
  * @returns image data that consists of the altered image data
  */
  function mirror(pixels) {
-    var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
     for (let y = 0; y < videoHeight; y++) {
       for (let x = 0; x < videoWidth / 2; x++) {
         let pixelIndex = videoWidth * 4 * y + x * 4;
         let targetPixelIndex = videoWidth * 4 * y + (videoWidth - x - 1) * 4;
-  
-        transformedImageData.data[pixelIndex] = pixels.data[pixelIndex];
-        transformedImageData.data[pixelIndex + 1] = pixels.data[pixelIndex + 1];
-        transformedImageData.data[pixelIndex + 2] = pixels.data[pixelIndex + 2];
-        transformedImageData.data[pixelIndex + 3] = pixels.data[pixelIndex + 3];
         
-        transformedImageData.data[targetPixelIndex] = pixels.data[pixelIndex];
-        transformedImageData.data[targetPixelIndex + 1] = pixels.data[pixelIndex + 1];
-        transformedImageData.data[targetPixelIndex + 2] = pixels.data[pixelIndex + 2];
-        transformedImageData.data[targetPixelIndex + 3] = pixels.data[pixelIndex + 3];
+        pixels[targetPixelIndex] = pixels[pixelIndex];
+        pixels[targetPixelIndex + 1] = pixels[pixelIndex + 1];
+        pixels[targetPixelIndex + 2] = pixels[pixelIndex + 2];
+        pixels[targetPixelIndex + 3] = pixels[pixelIndex + 3];
       }
     }
-  
-    return transformedImageData
-  
 }
 
 /**
@@ -260,9 +239,9 @@ function upsideDown(pixels) {
      for (let x = 0; x < videoWidth; x++) {
        let pixelIndex = videoWidth * 4 * y + x * 4;
  
-       let r = pixels.data[pixelIndex];
-       let g = pixels.data[pixelIndex + 1];
-       let b = pixels.data[pixelIndex + 2];
+       let r = pixels[pixelIndex];
+       let g = pixels[pixelIndex + 1];
+       let b = pixels[pixelIndex + 2];
  
        let u = Math.cos(hue * Math.PI / 180);
        let w = Math.sin(hue * Math.PI / 180);
@@ -274,9 +253,9 @@ function upsideDown(pixels) {
        let newB = (0.299 - 0.3 * u + 1.25 * w) * r + (0.587 - 0.588 * u - 1.05 * w) * g + (0.114 + 0.886 * u - 0.203 * w) * b;
  
        //Update the pixel data
-       pixels.data[pixelIndex] = newR;
-       pixels.data[pixelIndex + 1] = newG;
-       pixels.data[pixelIndex + 2] = newB;
+       pixels[pixelIndex] = newR;
+       pixels[pixelIndex + 1] = newG;
+       pixels[pixelIndex + 2] = newB;
  
      }
    }
@@ -300,15 +279,15 @@ function drawRectangle(pixels, rectWidth, rectHeight, posX, posY)
   {
     pixelIndex = videoWidth * posY * 4 + x * 4;
 
-    pixels.data[pixelIndex] = 0;
-    pixels.data[pixelIndex + 1] = 0;
-    pixels.data[pixelIndex + 2] = 0;
+    pixels[pixelIndex] = 0;
+    pixels[pixelIndex + 1] = 0;
+    pixels[pixelIndex + 2] = 0;
 
     pixelIndex = videoWidth * (posY + rectHeight - 1) * 4 + x * 4;
 
-    pixels.data[pixelIndex] = 0;
-    pixels.data[pixelIndex + 1] = 0;
-    pixels.data[pixelIndex + 2] = 0;
+    pixels[pixelIndex] = 0;
+    pixels[pixelIndex + 1] = 0;
+    pixels[pixelIndex + 2] = 0;
   }
 
   //Draw the left and right borders of the rectangle
@@ -316,15 +295,15 @@ function drawRectangle(pixels, rectWidth, rectHeight, posX, posY)
   {
     pixelIndex = videoWidth * y * 4 + posX * 4;
 
-    pixels.data[pixelIndex] = 0;
-    pixels.data[pixelIndex + 1] = 0;
-    pixels.data[pixelIndex + 2] = 0;
+    pixels[pixelIndex] = 0;
+    pixels[pixelIndex + 1] = 0;
+    pixels[pixelIndex + 2] = 0;
 
     pixelIndex = videoWidth * y * 4 + (posX + rectWidth - 1) * 4;
 
-    pixels.data[pixelIndex] = 0;
-    pixels.data[pixelIndex + 1] = 0;
-    pixels.data[pixelIndex + 2] = 0;
+    pixels[pixelIndex] = 0;
+    pixels[pixelIndex + 1] = 0;
+    pixels[pixelIndex + 2] = 0;
   }
 
   return pixels;
@@ -337,7 +316,8 @@ function drawRectangle(pixels, rectWidth, rectHeight, posX, posY)
  */
 function flipImage(pixels)
 {
-  var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
+  const pixelsCopy = new Array(pixels.length);
+  copyArray(pixels, pixelsCopy);
   let pixelIndex;
   let targetPixelIndex;
   for(let y = 0; y < videoHeight; y++)
@@ -347,13 +327,12 @@ function flipImage(pixels)
       pixelIndex = videoWidth * y * 4 + x * 4;
       targetPixelIndex = videoWidth * y * 4 + (videoWidth - x - 1) * 4;
 
-      transformedImageData.data[targetPixelIndex] = pixels.data[pixelIndex];
-      transformedImageData.data[targetPixelIndex + 1] = pixels.data[pixelIndex + 1];
-      transformedImageData.data[targetPixelIndex + 2] = pixels.data[pixelIndex + 2];
-      transformedImageData.data[targetPixelIndex + 3] = pixels.data[pixelIndex + 3];
+      pixels[targetPixelIndex] = pixelsCopy[pixelIndex];
+      pixels[targetPixelIndex + 1] = pixelsCopy[pixelIndex + 1];
+      pixels[targetPixelIndex + 2] = pixelsCopy[pixelIndex + 2];
+      pixels[targetPixelIndex + 3] = pixelsCopy[pixelIndex + 3];
     }
   }
-  return transformedImageData;
 }
 
 /**
@@ -372,33 +351,35 @@ function increaseColor(pixels, red, green, blue)
     {
       pixelIndex = videoWidth * y * 4 + x * 4;
       
-      if(pixels.data[pixelIndex] + red < 255)
+      if(pixels[pixelIndex] + red < 255)
       {
-        pixels.data[pixelIndex] += red;
+        pixels[pixelIndex] += red;
       }
       else
       {
-        pixels.data[pixelIndex] = 255;
+        pixels[pixelIndex] = 255;
       }
 
-      if(pixels.data[pixelIndex + 1] + green < 255)
+      if(pixels[pixelIndex + 1] + green < 255)
       {
-        pixels.data[pixelIndex + 1] += green;
+        pixels[pixelIndex + 1] += green;
       }
       else
       {
-        pixels.data[pixelIndex + 1] = 255;
+        pixels[pixelIndex + 1] = 255;
       }
 
-      if(pixels.data[pixelIndex + 2] + blue < 255)
+      if(pixels[pixelIndex + 2] + blue < 255)
       {
-        pixels.data[pixelIndex + 2] += blue;
+        pixels[pixelIndex + 2] += blue;
       }
       else
       {
-        pixels.data[pixelIndex + 2] = 255;
+        pixels[pixelIndex + 2] = 255;
       }
     }
   }
   return pixels;
 }
+
+module.exports = flipImage;
