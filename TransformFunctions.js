@@ -1,12 +1,14 @@
 /**
  * Method utilized to alter the pixel in order to create a spiral effect based on the image data passed in
- * @param {ImageData} pixels the image data that represents the current frame displayed
- * @returns image data that consists of the altered image data
+ * @param {int[]} pixels the image data that represents the current frame displayed
+ * @param {int} videoWidth width in pixels of the image
+ * @param {int} videoHeight height in pixels of the image
+ * @returns void
  */
- function spiral(pixels) {
+ function spiral(pixels, videoWidth, videoHeight) {
     var x, y, width, height, size, radius, centerX, centerY, sourcePosition, destPosition;
-    pixelsCopy = new Array(pixels.length);
-    copyArray(pixels, pixelsCopy);
+    let pixelsCopy = new Array(pixels.length);
+    copyArray(pixels, pixelsCopy, videoWidth, videoHeight);
 
     var r, alpha;
     var newX, newY;
@@ -52,12 +54,14 @@
 
 /**
  * Method utilized to alter the pixel in order to create a wave effect based on the image data passed in
- * @param {ImageData} pixels the image data that represents the current frame displayed
- * @returns image data that consists of the altered image data
+ * @param {int[]} pixels the image data that represents the current frame displayed
+ * @param {int} videoWidth width in pixels of the image
+ * @param {int} videoHeight height in pixels of the image
+ * @returns void
  */
-function wave(pixels) {
-    const pixelsCopy = new Array(pixels.length);
-    copyArray(pixels, pixelsCopy);
+function wave(pixels, videoWidth, videoHeight) {
+    let pixelsCopy = new Array(pixels.length);
+    copyArray(pixels, pixelsCopy, videoWidth, videoHeight);
 
     //Variable to determine how many pixels to shift and the direction to shift
     var amt = 18
@@ -104,12 +108,14 @@ function wave(pixels) {
 
 /**
  * Method utilized to alter the pixel in order to create a upside down effect based on the image data passed in
- * @param {ImageData} pixels the image data that represents the current frame displayed
- * @returns image data that consists of the altered image data
+ * @param {int[]} pixels the image data that represents the current frame displayed
+ * @param {int} videoWidth width in pixels of the image
+ * @param {int} videoHeight height in pixels of the image
+ * @returns void
  */
-function upsideDown(pixels) {
-    var transformedImageData = secondCtx.createImageData(videoWidth, videoHeight);
-    const pixelsCopy = new Array(pixels.length);
+function upsideDown(pixels, videoWidth, videoHeight) {
+    let pixelsCopy = new Array(pixels.length);
+    copyArray(pixels, pixelsCopy, videoWidth, videoWidth);
   
     for (let y = 0; y < videoHeight; y++) {
       for (let x = 0; x < videoWidth; x++) {
@@ -126,13 +132,15 @@ function upsideDown(pixels) {
 
 /**
  * Method utilized to alter the pixel in order to create a pixelate effect based on the image data passed in
- * @param {ImageData} pixels the image data that represents the current frame displayed
+ * @param {int[]} pixels the image data that represents the current frame displayed
+ * @param {int} videoWidth width in pixels of the image
+ * @param {int} videoHeight height in pixels of the image
  * @param {int} scaleFactor the int that represents how much will be max pixels to be scaled
- * @returns image data that consists of the altered image data
+ * @returns void
  */
- function pixelate(pixels, scaleFactor) {
-    const pixelsCopy = new Array(pixels.length);
-    copyArray(pixels, pixelsCopy);
+ function pixelate(pixels, videoWidth, videoHeight, scaleFactor) {
+    let pixelsCopy = new Array(pixels.length);
+    copyArray(pixels, pixelsCopy, videoWidth, videoHeight);
   
     //Loop over all pixels in the image
     for (let y = 0; y < videoHeight; y += scaleFactor) {
@@ -179,10 +187,12 @@ function upsideDown(pixels) {
 
 /**
  * Method utilized to alter the pixel in order to create a grey effect based on the image data passed in
- * @param {ImageData} pixels the image data that represents the current frame displayed
- * @returns a image data that consisted of the altered image data
+ * @param {int[]} pixels the image data that represents the current frame displayed
+ * @param {int} videoWidth width in pixels of the image
+ * @param {int} videoHeight height in pixels of the image
+ * @returns void
  */
- function greyScale(pixels) {
+ function greyScale(pixels, videoWidth, videoHeight) {
     for (let y = 0; y < videoHeight; y++) {
       for (let x = 0; x < videoWidth; x++) {
         //The data is linear, get the x,y coordinate
@@ -190,7 +200,6 @@ function upsideDown(pixels) {
         let pixelIndex = videoWidth * 4 * y + x * 4;
   
         //Convert to grayscale on half the image
-  
         let r = pixels[pixelIndex];
         let g = pixels[pixelIndex + 1];
         let b = pixels[pixelIndex + 2];
@@ -210,10 +219,12 @@ function upsideDown(pixels) {
 
 /**
  * Method utilized to alter the pixel in order to create a mirror effect based on the image data passed in
- * @param {ImageData} pixels the image data that represents the current frame displayed
- * @returns image data that consists of the altered image data
+ * @param {int[]} pixels the image data that represents the current frame displayed
+ * @param {int} videoWidth width in pixels of the image
+ * @param {int} videoHeight height in pixels of the image
+ * @returns void
  */
- function mirror(pixels) {
+ function mirror(pixels, videoWidth, videoHeight) {
     for (let y = 0; y < videoHeight; y++) {
       for (let x = 0; x < videoWidth / 2; x++) {
         let pixelIndex = videoWidth * 4 * y + x * 4;
@@ -229,11 +240,13 @@ function upsideDown(pixels) {
 
 /**
  * Method that alters the color hue of the given image
- * @param {ImageData} pixels the image data that represents the current frame displayed
+ * @param {int[]} pixels the image data that represents the current frame displayed
+ * @param {int} videoWidth width in pixels of the image
+ * @param {int} videoHeight height in pixels of the image
  * @param {int} hue the amount (in degrees) to change the hue
- * @returns image data that consists of the altered image data
+ * @returns void
  */
- function changeHue(pixels, hue)
+ function changeHue(pixels, videoWidth, videoHeight, hue)
  {
    for (let y = 0; y < videoHeight; y++) {
      for (let x = 0; x < videoWidth; x++) {
@@ -264,14 +277,16 @@ function upsideDown(pixels) {
 
 /**
  * Function that draws a rectangle of given dimensions to the screen at given coordinates
- * @param {ImageData} pixels the image data that represents the current frame displayed
+ * @param {int[]} pixels the image data that represents the current frame displayed
+ * @param {int} videoWidth width in pixels of the image
+ * @param {int} videoHeight height in pixels of the image
  * @param {int} rectWidth width in pixels of rectangle to draw
  * @param {int} rectHeight height in pixels of rectangle to draw
  * @param {int} posX x coordinate of top left corner of rectangle
  * @param {int} posY y coordinate of top left corner of rectangle
- * @returns image data that consists of the altered image data
+ * @returns void
  */
-function drawRectangle(pixels, rectWidth, rectHeight, posX, posY)
+function drawRectangle(pixels, videoWidth, videoHeight, rectWidth, rectHeight, posX, posY)
 {
   let pixelIndex;
   //Draw the top and bottom borders of the rectangle
@@ -311,13 +326,15 @@ function drawRectangle(pixels, rectWidth, rectHeight, posX, posY)
 
 /**
  * Function to vertically flip the image.
- * @param {ImageData} pixels the image data that represents the current frame displayed
- * @returns image data that consists of the altered image data
+ * @param {int[]} pixels the image data that represents the current frame displayed
+ * @param {int} videoWidth width in pixels of the image
+ * @param {int} videoHeight height in pixels of the image
+ * @returns void
  */
-function flipImage(pixels)
+function flipImage(pixels, videoWidth, videoHeight)
 {
-  const pixelsCopy = new Array(pixels.length);
-  copyArray(pixels, pixelsCopy);
+  let pixelsCopy = new Array(pixels.length);
+  copyArray(pixels, pixelsCopy, videoWidth, videoHeight);
   let pixelIndex;
   let targetPixelIndex;
   for(let y = 0; y < videoHeight; y++)
@@ -337,49 +354,86 @@ function flipImage(pixels)
 
 /**
  * Function that increases (or decreases) the rgb values of the image
- * @param {ImageData} pixels the image data that represents the current frame displayed
+ * @param {int[]} pixels the image data that represents the current frame displayed
+ * @param {int} videoWidth width in pixels of the image
+ * @param {int} videoHeight height in pixels of the image
  * @param {int} red amount to change the r values by
  * @param {int} green amount to change the g values by
  * @param {int} blue amount to change the b values by
- * @returns image data that consists of the altered image data
+ * @returns void
  */
-function increaseColor(pixels, red, green, blue)
+function increaseColor(pixels, videoWidth, videoHeight, red, green, blue)
 {
   for(let y = 0; y < videoHeight; y++)
   {
     for(let x = 0; x < videoWidth; x++)
     {
-      pixelIndex = videoWidth * y * 4 + x * 4;
+      let pixelIndex = videoWidth * y * 4 + x * 4;
       
       if(pixels[pixelIndex] + red < 255)
       {
         pixels[pixelIndex] += red;
       }
-      else
+      else if(pixels[pixelIndex] + red >= 255)
       {
         pixels[pixelIndex] = 255;
+      }
+      else
+      {
+        pixels[pixelIndex] = red;
       }
 
       if(pixels[pixelIndex + 1] + green < 255)
       {
         pixels[pixelIndex + 1] += green;
       }
-      else
+      else if(pixels[pixelIndex + 1] + green >= 255)
       {
         pixels[pixelIndex + 1] = 255;
+      }
+      else
+      {
+        pixels[pixelIndex + 1] = green;
       }
 
       if(pixels[pixelIndex + 2] + blue < 255)
       {
         pixels[pixelIndex + 2] += blue;
       }
-      else
+      else if(pixels[pixelIndex + 2] + blue >= 255)
       {
         pixels[pixelIndex + 2] = 255;
+      }
+      else
+      {
+        pixels[pixelIndex + 2] = blue;
       }
     }
   }
   return pixels;
 }
 
-module.exports = flipImage;
+/**
+ * Function that copies the elements of arrayIn into arrayOut
+ * @param {int[]} arrayIn array to copy
+ * @param {int[]} arrayOut array to copy to
+ * @param {int} videoWidth width in pixels of the image
+ * @param {int} videoHeight height in pixels of the image
+ * @returns void
+ */
+function copyArray(arrayIn, arrayOut, videoWidth, videoHeight)
+{
+  for(let i = 0; i < arrayIn.length; i++)
+  {
+    arrayOut[i] = arrayIn[i];
+  }
+}
+
+module.exports.upsideDown = upsideDown;
+module.exports.pixelate = pixelate;
+module.exports.greyScale = greyScale;
+module.exports.mirror = mirror;
+module.exports.drawRectangle = drawRectangle;
+module.exports.flipImage = flipImage;
+module.exports.increaseColor = increaseColor;
+module.exports.copyArray = copyArray;

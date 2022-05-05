@@ -27,12 +27,8 @@
     proposedScaleY = window.innerHeight / settings.height;
     scale = Math.min(proposedScaleX, proposedScaleY);
 
-
-
     offsetX = 0;
     offsetY = 0;
-
-
 
     if (scale != proposedScaleX) {
       offsetX = (proposedScaleX - scale) * videoWidth / 2
@@ -44,11 +40,11 @@
     tempCtx.drawImage(video, 0, 0, settings.width, settings.height);
 
     let pixels = tempCtx.getImageData(0, 0, settings.width, settings.height);
-    flipImage(pixels.data);
-    switchDisplay(pixels.data);
+    flipImage(pixels.data, videoWidth, videoHeight);
+    switchDisplay(pixels.data, videoWidth, videoHeight);
     if(previousPixel == null){
       previousPixel = tempCtx.getImageData(0, 0, settings.width, settings.height)
-      flipImage(previousPixel.data);
+      flipImage(previousPixel.data, videoWidth, videoHeight);
     }
 
     secondCtx.putImageData(pixels, 0, 0);
@@ -56,17 +52,12 @@
     tempCtx.drawImage(img,0,0,videoWidth,videoHeight);
     tempImageData = tempCtx.getImageData(0,0,videoWidth,videoHeight);
 
-    
     timeDisplayed++;
     console.log(timeDisplayed);
-    
-
-    
   
     ctx.drawImage(secondCanvas, 0, 0, videoWidth, videoHeight,
       offsetX, offsetY, scale * videoWidth, scale * videoHeight);
     
-
     ctx.font = '50px serif';
     ctx.fillStyle = "white";
     ctx.fillText(currentDisplay, (canvas.width-proposedScaleX)/2,  canvas.height-10);
@@ -84,10 +75,12 @@
 
 /**
  * Method utilize as a main router for which effect to be displayed in the next frame
- * @param {ImageData} pixels the image data that consist of the current frame that's displayed
- * @returns a image data that consisted of the altered image data
+ * @param {int[]} pixels the image data that consist of the current frame that's displayed
+ * @param {int} videoWidth width in pixels of the image
+ * @param {int} videoHeight height in pixels of the image
+ * @returns void
  */
-function switchDisplay(pixels) {
+function switchDisplay(pixels, videoWidth, videoHeight) {
 
   switch(currentDisplay)
   {
@@ -97,7 +90,7 @@ function switchDisplay(pixels) {
         currentDisplay = "Continuous Hue Change";
         timeDisplayed = 0;
       }
-      mirror(pixels);
+      mirror(pixels, videoWidth, videoHeight);
       break;
     case "Continuous Hue Change":
       if(timeDisplayed >= 500)
@@ -113,7 +106,7 @@ function switchDisplay(pixels) {
       {
         hueValue++;
       }
-        changeHue(pixels, hueValue);
+        changeHue(pixels, videoWidth, videoHeight, hueValue);
       break;
     case "Pixelated Wave":
       if(timeDisplayed >= 500)
@@ -121,8 +114,8 @@ function switchDisplay(pixels) {
         currentDisplay = "Spiral";
         timeDisplayed = 0;
       }
-      pixelate(pixels, 6)
-      wave(pixels);
+      pixelate(pixels, videoWidth, videoHeight, 6)
+      wave(pixels, videoWidth, videoHeight);
       break;
     case "Spiral":
       if(timeDisplayed >= 500)
@@ -130,7 +123,7 @@ function switchDisplay(pixels) {
         currentDisplay = "Continuous Pixelation";
         timeDisplayed = 0;
       }
-      spiral(pixels);
+      spiral(pixels, videoWidth, videoHeight);
       break;
     case "Continuous Pixelation":
       if(timeDisplayed >= 1000)
@@ -138,7 +131,7 @@ function switchDisplay(pixels) {
         currentDisplay = "Moving Rectangle";
         timeDisplayed = 0;
       }
-      continuousPixelation(pixels);
+      continuousPixelation(pixels, videoWidth, videoHeight);
       break;
     case "Moving Rectangle":
       if(timeDisplayed >= 500)
@@ -146,7 +139,7 @@ function switchDisplay(pixels) {
         currentDisplay = "Mirror Wave";
         timeDisplayed = 0;
       }
-      movingRectangle(pixels, 200, 200);
+      movingRectangle(pixels, videoWidth, videoHeight, 200, 200);
       break;
     case "Mirror Wave":
       if(timeDisplayed >= 500)
@@ -155,10 +148,10 @@ function switchDisplay(pixels) {
         timeDisplayed = 0;
         img.src = "underwater.jpg";
         previousPixel = tempCtx.getImageData(0, 0, settings.width, settings.height)
-        flipImage(previousPixel.data);
+        flipImage(previousPixel.data, videoWidth, videoHeight);
       }
-      mirror(pixels);
-      wave(pixels);
+      mirror(pixels, videoWidth, videoHeight);
+      wave(pixels, videoWidth, videoHeight);
       break;
     case "Underwater":
       if(timeDisplayed >= 500)
@@ -166,8 +159,8 @@ function switchDisplay(pixels) {
         currentDisplay = "Pixelated Spiral";
         timeDisplayed = 0;
       }
-      increaseColor(pixels, 0, 0, 50);
-      backgroundRemoval(pixels);
+      increaseColor(pixels, videoWidth, videoHeight, 0, 0, 50);
+      backgroundRemoval(pixels, videoWidth, videoHeight);
       break;
     case "Pixelated Spiral":
       if(timeDisplayed >= 500)
@@ -176,8 +169,8 @@ function switchDisplay(pixels) {
         timeDisplayed = 0;
         img.src = "background.jpg";
       }
-      pixelate(pixels, 6);
-      spiral(pixels);
+      pixelate(pixels, videoWidth, videoHeight, 6);
+      spiral(pixels, videoWidth, videoHeight);
       break;
     case "Background Removal":
       if(timeDisplayed >= 500)
@@ -185,7 +178,7 @@ function switchDisplay(pixels) {
         currentDisplay = "Four Corners";
         timeDisplayed = 0;
       }
-      backgroundRemoval(pixels);
+      backgroundRemoval(pixels, videoWidth, videoHeight);
       break;
     case "Four Corners":
       if(timeDisplayed >= 500)
@@ -193,17 +186,25 @@ function switchDisplay(pixels) {
         currentDisplay = "Mirror Spiral";
         timeDisplayed = 0;
       }
-      display4images(pixels);
+      display4images(pixels, videoWidth, videoHeight);
       break;
     case "Mirror Spiral":
+      if(timeDisplayed >= 500)
+      {
+        currentDisplay = "Upside Down";
+        timeDisplayed = 0;
+      }
+      spiral(pixels, videoWidth, videoHeight);
+      mirror(pixels, videoWidth, videoHeight);
+      break;
+    case "Upside Down":
       if(timeDisplayed >= 500)
       {
         currentDisplay = "Volcano";
         timeDisplayed = 0;
         img.src = "volcano.jpg";
       }
-      spiral(pixels);
-      mirror(pixels);
+      upsideDown(pixels, videoWidth, videoHeight);
       break;
     case "Volcano":
       if(timeDisplayed >= 500)
@@ -211,45 +212,20 @@ function switchDisplay(pixels) {
         timeDisplayed = 0;
         window.location.href = window.location.href;
       }
-      increaseColor(pixels, 40, 0, 0);
-      backgroundRemoval(pixels);
+      increaseColor(pixels, videoWidth, videoHeight, 40, 0, 0);
+      backgroundRemoval(pixels, videoWidth, videoHeight);
       break;
-  }
-}
-
-function copyImageDataToArray(imageData, data)
-{
-  for(let i = 0; i < videoWidth * videoHeight * 4; i++)
-  {
-    data[i] = imageData.data[i];
-  }
-}
-
-/*
-function copyArrayToImageData(data, imageData)
-{
-  const data = new Array(videoWidth * videoHeight * 4);
-  for(let i = 0; i < videoWidth * videoHeight * 4; i++)
-  {
-    imageData.data[i] = data[i];
-  }
-}
-*/
-
-function copyArray(arrayIn, arrayOut)
-{
-  for(let i = 0; i < arrayIn.length; i++)
-  {
-    arrayOut[i] = arrayIn[i];
   }
 }
 
 /**
  * Method utilized to alter the pixel in order to create a background effect based on the image data passed in
- * @param {ImageData} pixels the image data that represents the current frame displayed
- * @returns a image data that consisted of the altered image data
+ * @param {int[]} pixels the image data that represents the current frame displayed
+ * @param {int} videoWidth width in pixels of the image
+ * @param {int} videoHeight height in pixels of the image
+ * @returns void
  */
-function backgroundRemoval(pixels) {
+function backgroundRemoval(pixels, videoWidth, videoHeight) {
   let minX = videoWidth
   let maxX = 0
   
@@ -296,7 +272,7 @@ function backgroundRemoval(pixels) {
   if(frameCounter >= 175)
   {
     previousPixel = tempCtx.getImageData(0, 0, settings.width, settings.height)
-    flipImage(previousPixel.data);
+    flipImage(previousPixel.data, videoWidth, videoHeight);
     frameCounter = 0;
   }
   else
@@ -307,11 +283,12 @@ function backgroundRemoval(pixels) {
 
 /**
  * Method that alters the image by executing a continous different degress of pixelation
- * @param {ImageData} pixels the origin image data
- * @param {ImageData} tempResult the image data where the altered pixels is stored
- * @returns a image data that consisted of the altered image data
+ * @param {int[]} pixels the origin image data
+ * @param {int} videoWidth width in pixels of the image
+ * @param {int} videoHeight height in pixels of the image
+ * @returns void
  */
-function continuousPixelation(pixels){
+function continuousPixelation(pixels, videoWidth, videoHeight){
   if(pixelation >= 30)
         shrink = true
       else if(pixelation <= 1){
@@ -320,14 +297,14 @@ function continuousPixelation(pixels){
         shrink = false
       }
         
-      pixelate(pixels, pixelation)
-      if(!shrink && frameCounter == 6){
+      pixelate(pixels, videoWidth, videoHeight, pixelation)
+      if(!shrink && frameCounter == 4){
         pixelation+=1
         frameCounter = 0
       }
-      else if( !shrink && frameCounter < 6)
+      else if( !shrink && frameCounter < 4)
         frameCounter++
-      else if(shrink && frameCounter == 6){
+      else if(shrink && frameCounter == 4){
         pixelation-=1
         frameCounter = 0
       }
@@ -338,10 +315,12 @@ function continuousPixelation(pixels){
 
 /**
  * Method that alters the image with spliting the image into 4 identical portion and each with different color
- * @param {ImageData} pixels the original pixel data
- * @returns a image data that consisted of the altered pixel image
+ * @param {int[]} pixels the original pixel data
+ * @param {int} videoWidth width in pixels of the image
+ * @param {int} videoHeight height in pixels of the image
+ * @returns void
  */
-function display4images(pixels) {
+function display4images(pixels, videoWidth, videoHeight) {
   const pixelsCopy = new Array(pixels.length);
   copyArray(pixels, pixelsCopy);
   for (let y = 0; y < videoHeight / 2  ; y ++ ) {
@@ -385,14 +364,16 @@ function display4images(pixels) {
 
 /**
  * Function that uses the drawRectangle function to create a moving rectangle that bounces off the side of the image
- * @param {ImageData} pixels the image data that represents the current frame displayed
+ * @param {int[]} pixels the image data that represents the current frame displayed
+ * @param {int} videoWidth width in pixels of the image
+ * @param {int} videoHeight height in pixels of the image
  * @param {int} rectWidth the width in pixels of the drawn rectangle
  * @param {int} rectHeight the height in pixels of the drawn rectangle
- * @returns image data corresponding to the transformed image
+ * @returns void
  */
-function movingRectangle(pixels, rectWidth, rectHeight)
+function movingRectangle(pixels, videoWidth, videoHeight, rectWidth, rectHeight)
 {
-  drawRectangle(pixels, rectWidth, rectHeight, currentX, currentY);
+  drawRectangle(pixels, videoWidth, videoHeight, rectWidth, rectHeight, currentX, currentY);
 
   //If the rectangle is moving in the positive x and y directions, we need to check if the bottom right corner is out of bounds
   if(xIncreasing == true && yIncreasing == true)
