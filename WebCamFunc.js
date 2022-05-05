@@ -274,22 +274,7 @@ function backgroundRemoval(pixels) {
       }
     }
    
-
-    //If X is out side of the zone, change the rgb pixel to black
-
-    /*for (let x = 0; x < videoWidth; x++) {
-      let pixelIndex = videoWidth * 4 * y + x * 4;
-      if (x <= minX || x >= maxX) {
-        pixels.data[pixelIndex] = 0
-        pixels.data[pixelIndex + 1] = 0
-        pixels.data[pixelIndex + 2] = 0
-        pixels.data[pixelIndex + 3] = 0
-      }
-    }
-    */
     
-    
-
     for (let x = 0; x < videoWidth; x++) {
       let pixelIndex = videoWidth * 4 * y + x * 4;
       if (x <= minX || x >= maxX) {
