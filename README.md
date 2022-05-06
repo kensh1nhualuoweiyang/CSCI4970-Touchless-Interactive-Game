@@ -2,14 +2,21 @@
 
 CSCI 4970 Capstone Project
 
-&emsp;&emsp;&emsp;This application serves the purpose of a touchless interative game system for children in a situation where a waiting room subject is available, the content implemented within this application can create interaction with its client through the utilization of webcam, to utilize the application, the client is required to click on the link to the hosting platform where the application is current deployed, and the web browser of the client should be configured to allow webcam access for the deploying site, once set, the client is then allowed to interact with the content implemented by the application.
+Authors:
+Dillon Damme, Chen Su, Joseph Wright
+
+&emsp;&emsp;&emsp;This application is intended to be used in doctor's offices waiting rooms or similar places as a way to entertain children. More specifically, it is intended to be a touchless experience. That is, the children do not have to physically touch anything which prevents the spread of germs. The application utilizes a webcam to capture image data and then use that image data to transform the video feed in various entertaining ways. For example, a child could stand in front of a monitor with a webcam and the child's image could be shown back to them upside down, as a different color, distorted, etc. 
+
+In order to use this application, you can use a service such as the live server extension in Visual Studio Code. To do this, you need to install the Live Server extension, right click on the index.html file in this project, and click 'Open with Live Server'. A browswer window will then open and webcam access will be requested. Clicking 'allow' will start the application. 
+
+Alternatively, the project is hosted at https://reverent-shockley-09506a.netlify.app/ so you can use the app there. Additionally, pressing any key on the keyboard will advance the effect. Otherwise the effects change every few seconds.
 
 
 _______________________________________________________________________
-Release Note:
+Release Notes:
 
 MileStone 1:<br />
-&emsp;&emsp;Within this submission, the environment of the project has been set up, which includes the building of a basic game engine, a potential model that we could utilize to etablish the function of webcam utilization, and the tool is being published by a web application, which, we decided to utilize netlify, and the link to the current working application is:<br />
+&emsp;&emsp;Within this submission, the environment of the project has been set up, which includes the building of a basic game engine, a potential model that we could utilize to etablish the function of webcam utilization, and the tool is being published by a web application, which, we decided to utilize netlify., and the link to the current working application is:<br />
 &emsp;&emsp;&emsp;https://reverent-shockley-09506a.netlify.app/<br />
 MileStone 2:<br />
 &emsp;&emsp;For the second milestone, we have added 3 features: a spiral, pixelate, and upside down.<br />
